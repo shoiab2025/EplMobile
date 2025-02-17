@@ -1,5 +1,8 @@
 package com.epl_mobile
 
+import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate
 import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint.fabricEnabled
@@ -8,18 +11,18 @@ import org.devio.rn.splashscreen.SplashScreen
 
 class MainActivity : ReactActivity() {
 
-  /**
-   * Returns the name of the main component registered from JavaScript. This is used to schedule
-   * rendering of the component.
-   */
-  override fun getMainComponentName(): String = "EPL_MOBILE"
-  init {
-    SplashScreen.show(this)
-  }
-  /**
-   * Returns the instance of the [ReactActivityDelegate]. We use [DefaultReactActivityDelegate]
-   * which allows you to enable New Architecture with a single boolean flags [fabricEnabled]
-   */
-  override fun createReactActivityDelegate(): ReactActivityDelegate =
-      DefaultReactActivityDelegate(this, mainComponentName, fabricEnabled)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        SplashScreen.show(this) // Show splash screen
+        super.onCreate(savedInstanceState)
+
+        // Delay hiding the splash screen (e.g., 3 seconds)
+        Handler(Looper.getMainLooper()).postDelayed({
+            SplashScreen.hide(this)
+        }, 8000) // Change 3000 to desired milliseconds
+    }
+
+    override fun getMainComponentName(): String = "EPL_MOBILE"
+
+    override fun createReactActivityDelegate(): ReactActivityDelegate =
+        DefaultReactActivityDelegate(this, mainComponentName, fabricEnabled)
 }

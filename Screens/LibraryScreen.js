@@ -1,4 +1,4 @@
-import { View, Text, FlatList, TouchableOpacity, Image, StyleSheet } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, Image, StyleSheet, Linking } from 'react-native';
 import React from 'react';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { colors } from '../assets/styles/colors';
@@ -12,32 +12,27 @@ const LibraryScreen = () => {
 
     const pdfs = {
         Taraweeh: [
-            { content: 'Taraweeh 1', fileUrl: 'https://example_pdf.com', contentType: 'pdf' },
-            { content: 'Taraweeh 2', fileUrl: 'https://example_pdf.com', contentType: 'pdf' },
-            // ... more Taraweeh PDFs
+            { content: 'Taraweeh 1', fileUrl: 'https://drive.google.com/file/d/1tvYJ_WVuxlCfEwv8C_pcDJGD1NyDDnGC/view?usp=sharing', contentType: 'pdf' },
+        ],
+        EssenceOfIslam: [
+            { content: 'Prophet Stories 1', fileUrl: 'https://drive.google.com/file/d/1ll6kRiZt0fcuhm8EbnZGaZx-FAGJ5xlE/view?usp=sharing', contentType: 'pdf' },
+        ],
+        ProphetStories: [
+            { content: 'Essence Short 1', fileUrl: 'https://www.youtube.com/embed/E4IrUOco-eA?si=HGUwlM9HBOyMLLoZ', contentType: 'video' },
         ],
         Seerah: [
-            { content: 'Seerah 1', fileUrl: 'https://www.iitk.ac.in/esc101/share/downloads/javanotes5.pdf', contentType: 'pdf' },
-            { content: 'Seerah 2', fileUrl: 'https://example_pdf.com', contentType: 'pdf' },
-            // ... more Seerah PDFs
-        ],
-        EssenceShorts: [
-            { content: 'Short 1', fileUrl: 'https://example_video.com', contentType: 'video' }, // Video content
-            { content: 'Short 2', fileUrl: 'https://example_video.com', contentType: 'video' }, // Video content
-            // ... more Essence Shorts videos
-        ],
-        StoriesOfProphets: [
-            { content: 'Story 1', fileUrl: 'https://example_pdf.com', contentType: 'pdf' },
-            { content: 'Story 2', fileUrl: 'https://example_pdf.com', contentType: 'pdf' },
-            // ... more Stories
-        ],
+            { content: 'Seerah 1', fileUrl: 'https://drive.google.com/file/d/1tvYJ_WVuxlCfEwv8C_pcDJGD1NyDDnGC/view?usp=sharing+', contentType: 'pdf' }
+        ]
     };
+    
 
     const renderItem = ({ item }) => (
         <TouchableOpacity
             style={[styles.listItem, localStyles.listItem]} // Use local styles
             onPress={() => {
-               navigation.navigate('Material', {item: item})
+               item.contentType === 'pdf' 
+                                   ? navigation.navigate('Material', { item }) 
+                                   : Linking.openURL(item.fileUrl)
             }}
         >
             <Image source={ item.contentType === 'pdf' ? require('../assets/Images/pdf.png') : require('../assets/Images/youtube.png')} style={localStyles.pdfIcon} />
@@ -89,11 +84,11 @@ const localStyles = StyleSheet.create({ // Create a separate style sheet
     listItem: {
         flexDirection: 'column',
         alignContent: 'center',
-        padding: 10, // Add padding
+        padding: 15, // Add padding
         marginRight: 10, // Space between items
         borderRadius: 8,  // Rounded corners for the list items
         backgroundColor: 'rgba(255, 255, 255, 0.38)', 
-        width: 'auto',
+        width: '150',
     },
     listItemText: {
         marginLeft: 10,

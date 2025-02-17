@@ -10,6 +10,7 @@ const QuizScreen = () => {
     const route = useRoute();
     const navigation = useNavigation();
     const group = route.params?.group || {};
+
     const pdfs = {
         EPL_Season_3_Quizzes: Array.from({ length: 27 }, (_, i) => ({
             content: `Day ${i + 1}`,
@@ -20,39 +21,47 @@ const QuizScreen = () => {
 
     const renderItem = (item) => (
         <TouchableOpacity
-            style={[styles.listItem, localStyles.listItem]}
+            style={[
+                styles.listItem,
+                localStyles.listItem,
+                { backgroundColor: item.content === 'Day 1' ?  colors.lightGray : 'gray' }
+            ]}
             onPress={() => {
                 console.log("Opening:", item.fileUrl);
-                // ... navigation logic
+                navigation.navigate("TestScreen", { item , screen: 'Quizzes'}); // Ensure navigation is defined
             }}
+            disabled={item.content !== 'Day 1'}
         >
-            <Text style={[styles.listItemText, localStyles.listItemText]}>{item.content}</Text>
+            <Text
+                style={[
+                    styles.listItemText,
+                    localStyles.listItemText,
+                    { color: item.content === 'Day 1' ? colors.primary  : 'rgba(255,255,255, 0.34)', fontSize: 18 }
+                ]}
+            >
+                {item.content}
+            </Text>
         </TouchableOpacity>
     );
 
     const renderSection = (title, data) => (
         <View style={localStyles.sectionContainer} key={title}>
-            <Text style={[styles.headingText, localStyles.sectionTitle]}>{title}</Text>
-            <View style={localStyles.gridContainer}> {/* Grid Container */}
-                {data.map((item, index) => (
-                    renderItem(item)
-                ))}
+            <Text style={[styles.headingText, localStyles.sectionTitle, {textTransform: 'capitalize', fontSize: 20}]}>Epl Season 3</Text>
+            <View style={localStyles.gridContainer}>
+                {data.map((item) => renderItem(item))}
             </View>
         </View>
     );
 
     return (
-        <View style={[styles.parentDiv, {paddingTop: 20}]}>
+        <View style={[styles.parentDiv, { paddingTop: 20 }]}>
             <View style={styles.absoluteCode}>
                 <Notification />
             </View>
 
             <ScrollView style={{ flex: 1, width: '100%' }}>
-                {Object.keys(pdfs).map(sectionTitle => (
-                    renderSection(sectionTitle, pdfs[sectionTitle])
-                ))}
+                {Object.keys(pdfs).map(sectionTitle => renderSection(sectionTitle, pdfs[sectionTitle]))}
             </ScrollView>
-
         </View>
     );
 };
@@ -69,29 +78,26 @@ const localStyles = StyleSheet.create({
         fontWeight: 'bold',
         marginBottom: 20,
     },
-    gridContainer: { // Grid layout styles
+    gridContainer: {
         flexDirection: 'row',
-        flexWrap: 'wrap', // Allow items to wrap to the next line
-        justifyContent: 'space-between', // Distribute space between items
+        flexWrap: 'wrap',
+        justifyContent: 'space-between',
     },
     listItem: {
         width: '30%',
-        height: '30%', // Adjust width as needed (e.g., for 3 columns)
-        aspectRatio: 1,
+        aspectRatio: 1, // Keeps square shape
         borderRadius: 8,
         backgroundColor: colors.lightGray,
-        justifyContent: 'center', // Center content vertically
-        alignItems: 'center',    // Center content horizontally
+        justifyContent: 'center',
+        alignItems: 'center',
         margin: 5,
+        height: 5,
         elevation: 4,
-        
     },
     listItemText: {
-        color: colors.primary,
         textAlign: 'center',
-        
+        fontWeight: '700'
     },
-    // ... other styles
 });
 
 export default QuizScreen;

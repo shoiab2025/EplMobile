@@ -1,4 +1,4 @@
-import { View, Text, Image, TouchableOpacity, ImageBackground } from 'react-native';
+import { View, Text, Image, TouchableOpacity, ImageBackground, FlatList, Linking } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import Notification from '../Components/notification';
@@ -13,8 +13,15 @@ const HomeScreen = () => {
   const group = route.params?.group || {};
   const [quizStart, setQuizStart] = useState(false);
   const navigation = useNavigation();
-  const {groupTheme} = useAuth();
+  const { groupTheme } = useAuth();
   const styles = style();
+  const pdfs = [
+    { content: 'Taraweeh 1', fileUrl: 'https://drive.google.com/file/d/1tvYJ_WVuxlCfEwv8C_pcDJGD1NyDDnGC/view?usp=sharing', contentType: 'pdf' },
+    { content: 'Prophet Stories 1', fileUrl: 'https://drive.google.com/file/d/1ll6kRiZt0fcuhm8EbnZGaZx-FAGJ5xlE/view?usp=sharing', contentType: 'pdf' },
+    { content: 'Essence Short 1', fileUrl: 'https://www.youtube.com/embed/E4IrUOco-eA?si=HGUwlM9HBOyMLLoZ', contentType: 'video' },
+    { content: 'Essence Short 2', fileUrl: 'https://youtu.be/_DPv18NJ3QY?si=dwSUMGDM8wo54p7n', contentType: 'video' }
+
+  ];
 
   return (
     <View style={styles.parentDiv}>
@@ -47,7 +54,7 @@ const HomeScreen = () => {
           style={{ display: quizStart ? 'none' : 'block' }}
         >
           <Text style={[styles.boldText, { marginVertical: 10, textAlign: 'center' }]}>Quiz starts in</Text>
-          
+
           <CountDown
             size={15}
             until={60 * 0.1}
@@ -66,7 +73,7 @@ const HomeScreen = () => {
         <View style={{ display: !quizStart ? 'none' : 'block' }}>
           <TouchableOpacity
             style={[styles.button, { width: '200', backgroundColor: colors.brown, height: 50, marginVertical: 10 }]}
-            onPress={() => navigation.navigate('TestScreen', { group: group })}
+            onPress={() => navigation.navigate('TestScreen', { group: group, screen: 'Home' })}
           >
             <Text style={styles.buttonText}>Start Now</Text>
           </TouchableOpacity>
@@ -76,37 +83,27 @@ const HomeScreen = () => {
       <View style={[styles.whiteCardBgStyle, { marginVertical: 10, paddingVertical: 10 }]}>
         <Text style={[styles.text_default, { width: '100%', textAlign: 'left', fontSize: 18, }]}>Day 1 Materials</Text>
 
-        <View style={{flexDirection: 'column', width: '100%'}}>
+        <View style={{ flexDirection: 'column', width: '100%' }}>
           <View >
-            <View style={{ padding: 5, justifyContent: 'flex-start', alignItems: 'flex-start', flexDirection: 'row', gap: 0, width: '100%' }}>
-              <View style={[styles.materialHomeDesign]}>
-                <Image source={require('../assets/Images/pdf.png')} style={styles.home_pdf_Icon} />
-              </View>
-              <Text style={[styles.textDefault, { textAlign: 'center', paddingVertical: '5', alignSelf: 'center' }]}>Taraweeh PDF</Text>
-            </View>
-
-            <View style={{ padding: 5, justifyContent: 'flex-start', alignItems: 'flex-start', flexDirection: 'row', gap: 0, width: '100%' }}>
-              <View style={[styles.materialHomeDesign]}>
-                <Image source={require('../assets/Images/pdf.png')} style={styles.home_pdf_Icon} />
-              </View>
-              <Text style={[styles.textDefault, { textAlign: 'center', paddingVertical: '5', alignSelf: 'center' }]}>Story of Prophet PDF</Text>
-            </View>
-          </View>
-
-          <View>
-            <View style={{ padding: 5, justifyContent: 'flex-start', alignItems: 'flex-start', flexDirection: 'row', gap: 0, width: '100%' }}>
-              <View style={[styles.materialHomeDesign]}>
-                <Image source={require('../assets/Images/pdf.png')} style={styles.home_pdf_Icon} />
-              </View>
-              <Text style={[styles.textDefault, { textAlign: 'center', paddingVertical: '5', alignSelf: 'center' }]}>Seera</Text>
-            </View>
-
-            <View style={{ padding: 5, justifyContent: 'flex-start', alignItems: 'flex-start', flexDirection: 'row', gap: 0, width: '100%' }}>
-              <View style={[styles.materialHomeDesign]}>
-                <Image source={require('../assets/Images/youtube.png')} style={styles.home_pdf_Icon} />
-              </View>
-              <Text style={[styles.textDefault, { textAlign: 'center', paddingVertical: '5', alignSelf: 'center' }]}>Essence</Text>
-            </View>
+            <FlatList
+              data={pdfs}
+              renderItem={({ item }) => (
+                <TouchableOpacity onPress={() => 
+                  item.contentType === 'pdf' 
+                    ? navigation.navigate('Material', { item }) 
+                    : Linking.openURL(item.fileUrl)
+                }>
+                  <View style={{ padding: 5, flexDirection: 'row', alignItems: 'center' }}>
+                    <View style={[styles.materialHomeDesign]}>
+                      <Image source={item.contentType == 'pdf' ? require('../assets/Images/pdf.png') : require('../assets/Images/youtube.png')} style={styles.home_pdf_Icon} />
+                    </View>
+                    <Text style={[styles.textDefault, { marginLeft: 10 }]}>{item.content}</Text>
+                  </View>
+                </TouchableOpacity>
+              )}
+              keyExtractor={(item, index) => index.toString()}
+              showsHorizontalScrollIndicator={false}
+            />
           </View>
         </View>
 

@@ -12,16 +12,8 @@ export const AuthProvider = ({children}) => {
     const [userLoggedIn, setUserLoggedIn] = useState(false);
     const [groupTheme, setGroupTheme] = useState(colors.main_gradient);
 
-    useEffect(() => {
-        if (authUser) {
-          setUserLoggedIn(true);
-        } else {
-          setUserLoggedIn(false);
-        }
-      }, [authUser]);
-
       return (
-        <AuthContext.Provider value={{ authUser, setAuthUser, userLoggedIn, setGroupTheme, groupTheme }}>
+        <AuthContext.Provider value={{ authUser, setAuthUser, userLoggedIn, setGroupTheme, groupTheme , setUserLoggedIn}}>
           {children}
         </AuthContext.Provider>
       );

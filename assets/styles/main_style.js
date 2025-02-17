@@ -67,6 +67,7 @@ const style = () => {
         justifyContent: 'center',
         alignItems: 'center',
         padding: 20,
+        elevation: 3
       },
     
       inputField: {
@@ -74,8 +75,9 @@ const style = () => {
         borderWidth: 1,
         marginVertical: 5,
         borderRadius: 5,   
-        paddingHorizontal: 10,
-        color: '#000'
+        padding: 10,
+        color: '#000',
+        backgroundColor: colors.white
       },
     
       lableText: {
@@ -176,7 +178,7 @@ const style = () => {
       absoluteCode: {
         position: 'absolute',
         right: '15',
-        bottom: '10'
+        top: '10'
       },
     
       notificationStyle: {

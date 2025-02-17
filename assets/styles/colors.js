@@ -1,5 +1,8 @@
 export const colors = {
-    main_gradient: 'linear-gradient(180deg, rgba(228,193,91,1) 0%, rgba(254,239,160,1) 100%)',
+    main_gradient: 'linear-gradient(-90deg, rgba(228,193,91,1) 0%, rgba(254,239,160,1) 100%)',
+    college_gradient: 'linear-gradient(90deg, rgba(222,168,86,1) 0%, rgba(254,225,156,1) 100%)',
+    school_gradient: 'linear-gradient(90deg, rgba(86,189,222,1) 0%, rgba(156,222,254,1) 100%)',
+    public_gradient: 'linear-gradient(90deg, rgba(168,203,99,1) 0%, rgba(208,227,171,1) 100%)',
     primary: '#801214',
     gold: '#FEEFA0',
     white: '#FEFED5',

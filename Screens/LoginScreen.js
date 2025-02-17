@@ -17,6 +17,7 @@ import DatePicker from 'react-native-date-picker';
 import moment from 'moment';
 import { useAuth } from './AuthContext';
 import style from '../assets/styles/main_style';
+import { colors } from '../assets/styles/colors';
 
 const LoginScreen = () => {
   const route = useRoute();  
@@ -32,10 +33,35 @@ const LoginScreen = () => {
   const [date, setDate] = useState(new Date());
   const [showModal, setModalShow] = useState(false);
   const [phoneNo, setPhoneNo] = useState('');
-  const { setAuthUser, groupTheme } = useAuth();
+  const { authUser, groupTheme, setUserLoggedIn } = useAuth();
   
+  console.log(group);
+  console.log(authUser);
+
   const handleLogin = async () => {
-    setAuthUser({user: 'User1', d_o_b: '25/25/25'});
+
+    if (!registrationId || !password) {
+      Toast.show({
+        type: 'error',
+        text1: 'Please Fill the fields',
+      });
+      setUserLoggedIn(true);
+      
+    } else if (authUser.regId === registrationId && authUser.password === password) {
+      Toast.show({
+        type: 'success',
+        text1: 'Logged In Successfully'
+      });
+      setUserLoggedIn(true);
+    } else {
+      Toast.show({
+        type: 'error',
+        text1: 'Logged Failed',
+        text2: 'Please enter Valid Registration Id or Password',
+      });
+    }
+    
+
   };
   
 
@@ -44,8 +70,11 @@ const LoginScreen = () => {
   };
 
   const handleNavigateToRegister = () => {
+    
     navigation.navigate('Register', { group });
   };
+
+
   const styles = style();
 
   return (

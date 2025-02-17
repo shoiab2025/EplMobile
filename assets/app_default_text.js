@@ -26,6 +26,7 @@ export const text = {
         d_o_b: 'Date of Birth',
         gender: 'Gender',
         class: 'Class',
+        college: 'College',
         section: 'Section',
         confirmPassword: 'Confirm Password' ,
         have_account: 'Already Have an Account?',
