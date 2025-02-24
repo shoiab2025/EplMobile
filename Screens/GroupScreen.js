@@ -7,82 +7,62 @@ import { useAuth } from './AuthContext';
 import style from '../assets/styles/main_style';
 import { colors } from '../assets/styles/colors';
 import { GetAllGroups } from '../API_STORE/groupApi';
+import LinearGradient from 'react-native-linear-gradient';
+import { parseGradient } from '../Components/gradient';
+import Toast from 'react-native-toast-message';
 
 const GroupScreen = () => {
   const navigation = useNavigation();
-  const { setGroupTheme } = useAuth();
+  const { setGroupTheme, setGroup } = useAuth();
   const [groups, setGroups] = useState([]);
   const [loading, setLoading] = useState(true); // Loading state
-  const listtedGroups = [
-    {
-      groupName: "Inter College Quiz",
-      groupTheme: colors.college_gradient,
-      
-    },
 
-    {
-      groupName: "Inter School Quiz",
-      groupTheme: colors.school_gradient,
-      
-    },
+  useEffect(() => {
+    (async () => {
+      try {
+        const data = await GetAllGroups();
+        setGroups(data || []);
+      } catch (error) {
+        console.error('Failed to fetch groups:', error);
+        Toast.show({
+          type: 'error',
+          text1: 'Check your Network Nonnection'
+        })
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, []);
 
-    {
-      groupName: "General Quiz English",
-      groupTheme: colors.public_gradient,
-      
-    },
-
-    {
-      groupName: "General Quiz Tamil",
-      groupTheme: colors.public_gradient,
-      
-    },
-
-
-  ]
-  // useEffect(() => {
-  //   (async () => {
-  //     try {
-  //       const data = await GetAllGroups();
-  //       setGroups(data || []);
-  //     } catch (error) {
-  //       console.error('Failed to fetch groups:', error);
-  //     } finally {
-  //       setLoading(false); 
-  //     }
-  //   })();
-  // }, []);
 
   const handleGroupPress = (item) => {
+    console.log(item.groupTheme);
+    
     setGroupTheme(item?.groupTheme);
-    navigation.navigate('Login', {group: item});
+    setGroup(item);
+    navigation.navigate('Login', { group: item });
   };
 
   const styles = style();
-console.log(groups);
+
+  const { gradientColors, start, end } = parseGradient(colors.main_gradient);
 
   return (
-    <View style={[styles.parentDiv, { backgroundColor: colors.main_gradient }]}>
+    <LinearGradient colors={gradientColors} start={start} end={end} style={styles.parentDiv} >
       <Image source={app_config.logo} style={styles.logo_default_size} />
       <Text style={styles.text_default}>{text.groupScreenText.choose_text}</Text>
 
-      {/* Show Loader if Groups are Loading */}
-      {false ? (
-        <ActivityIndicator size="large" color={colors.primary} style={{ marginTop: 20, }}  />
+      {loading ? (
+        <ActivityIndicator size="large" color={colors.primary} style={{ marginTop: 20 }} />
       ) : (
-        <FlatList
-          data={listtedGroups}
-          renderItem={({ item }) => (
-            <TouchableOpacity onPress={() => handleGroupPress(item)}>
-              <View style={styles.GroupScreenOptionBtns}>
-                <Text style={styles.GroupText}>{item?.groupName}</Text>
-              </View>
+          groups.map((item, index) => (
+            <TouchableOpacity key={index} onPress={() => handleGroupPress(item)} style={styles.GroupScreenOptionBtns}>
+              <Text style={styles.GroupText}>{item?.groupName}</Text>
             </TouchableOpacity>
-          )}
-          keyExtractor={(item) => item?._id?.toString() || Math.random().toString()}
-        />
+          )
+        )
       )}
-    </View>
+    </LinearGradient>
   );
 };
 

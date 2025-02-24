@@ -22,6 +22,10 @@ import style from '../assets/styles/main_style';
 import MaterialViewer from './MaterialViewer';
 import Settings from './Setting';
 import Announcement from './Announcment';
+import { Button } from 'react-native';
+import updateProfile from './UpdateProfile';
+import Policy from './Policy';
+import Certificate from './Certificate';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -65,7 +69,7 @@ const PerfomanceStack = () => {
     const styles = style();
     return (
         <Stack.Navigator>
-            <Stack.Screen name="Perfomances" component={PerfomanceScreen} options={{ headerShown: false, headerTitleStyle: [styles.home_banner_txt, { color: colors.primary, }], headerTransparent: true, }} />
+            <Stack.Screen name="Perfomances" component={PerfomanceScreen} options={{ headerShown: false, headerTitleStyle: [styles.home_banner_txt, { color: colors.primary, }], headerTransparent: true, headerTitle: 'Progress' }} />
             <Stack.Screen name="TestScreen" component={TestScreen} options={{ headerShown: false }} />
             <Stack.Screen name="Announcement" component={Announcement} options={{ headerShown: true }} />
             <Stack.Screen name="LeaderBoard" component={LeaderBoardScreen} options={{ headerShown: false, headerTitleStyle: [styles.home_banner_txt, { color: colors.primary, }], headerTransparent: true, }} />
@@ -75,12 +79,16 @@ const PerfomanceStack = () => {
 
 
 const ProfileStack = () => {
+    const { setUserLoggedIn } = useAuth(); 
     const styles = style();
     return (
         <Stack.Navigator>
             <Stack.Screen name="Profile" component={ProfileScreen} options={{ headerShown: false, headerTitleStyle: [styles.home_banner_txt, { color: colors.primary, }], headerTransparent: true, }} />
             <Stack.Screen name="Settings" component={Settings} options={{ headerShown: true, headerTitleStyle: [styles.home_banner_txt, { color: colors.primary, }], headerTransparent: true, }} />
             <Stack.Screen name="Announcement" component={Announcement} options={{ headerShown: true }} />
+            <Stack.Screen name="ProfileEdit" component={updateProfile} options={{  headerShown: true, headerTitleStyle: [styles.home_banner_txt, { color: colors.primary, }], headerTransparent: false, headerTitle: "Update Profile" } }/>
+            <Stack.Screen name="Policy" component={Policy} options={{ headerShown: true, headerTitleStyle: [styles.home_banner_txt, { color: colors.primary, }], headerTransparent: false, headerTitle: 'Privacy Policy' }} />
+            <Stack.Screen name="Certificate" component={Certificate} options={{ headerShown: true, headerTitleStyle: [styles.home_banner_txt, { color: colors.primary, }], headerTransparent: false, headerTitle: 'Certificate' }} />
         </Stack.Navigator>
     );
 }
@@ -127,7 +135,7 @@ const MainTabs = () => {
             <Tab.Screen name="Test" component={HomeStack} />
             <Tab.Screen name="Library" component={LibraryStack} />
             <Tab.Screen name="Quizzes" component={QuizStack} />
-            <Tab.Screen name="Perfomance" component={PerfomanceStack} />
+            <Tab.Screen name="Perfomance" component={PerfomanceStack} options={{title: 'Progress'}}/>
             <Tab.Screen name="Profile" component={ProfileStack} />
         </Tab.Navigator>
     );
@@ -137,9 +145,13 @@ const RootNavigator = () => {
     const { userLoggedIn } = useAuth();
 
     return (
-        <>
-            {userLoggedIn ? <MainTabs /> : <AuthStack />}
-        </>
+        <Stack.Navigator screenOptions={{ headerShown: false }}>
+                {userLoggedIn ? (
+                    <Stack.Screen name="Main" component={MainTabs} />
+                ) : (
+                    <Stack.Screen name="Auth" component={AuthStack} />
+                )}
+            </Stack.Navigator>
     );
 };
 

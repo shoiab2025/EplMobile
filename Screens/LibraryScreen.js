@@ -1,75 +1,127 @@
-import { View, Text, FlatList, TouchableOpacity, Image, StyleSheet, Linking } from 'react-native';
-import React from 'react';
-import { useRoute, useNavigation } from '@react-navigation/native';
-import { colors } from '../assets/styles/colors';
+import React, { useEffect, useState } from 'react';
+import { View, Text, FlatList, TouchableOpacity, Image, StyleSheet, ActivityIndicator, TouchableWithoutFeedback, Keyboard } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import LinearGradient from 'react-native-linear-gradient';
 import Notification from '../Components/notification';
 import style from '../assets/styles/main_style';
+import { parseGradient } from '../Components/gradient';
+import { useAuth } from './AuthContext';
+import { GetAllMaterial } from '../API_STORE/materialApi';
+import { colors } from '../assets/styles/colors';
 
 const LibraryScreen = () => {
-
     const navigation = useNavigation();
+    const { groupTheme } = useAuth();
     const styles = style();
+    const [materials, setMaterials] = useState([]);
+    const [loading, setLoading] = useState(false);
 
-    const pdfs = {
-        Taraweeh: [
-            { content: 'Taraweeh 1', fileUrl: 'https://drive.google.com/file/d/1tvYJ_WVuxlCfEwv8C_pcDJGD1NyDDnGC/view?usp=sharing', contentType: 'pdf' },
-        ],
-        EssenceOfIslam: [
-            { content: 'Prophet Stories 1', fileUrl: 'https://drive.google.com/file/d/1ll6kRiZt0fcuhm8EbnZGaZx-FAGJ5xlE/view?usp=sharing', contentType: 'pdf' },
-        ],
-        ProphetStories: [
-            { content: 'Essence Short 1', fileUrl: 'https://www.youtube.com/embed/E4IrUOco-eA?si=HGUwlM9HBOyMLLoZ', contentType: 'video' },
-        ],
-        Seerah: [
-            { content: 'Seerah 1', fileUrl: 'https://drive.google.com/file/d/1tvYJ_WVuxlCfEwv8C_pcDJGD1NyDDnGC/view?usp=sharing+', contentType: 'pdf' }
-        ]
-    };
-    
+    useEffect(() => {
+        const fetchMaterials = async () => {
+            try {
+                const response = await GetAllMaterial();
+                setMaterials(response.data);
+                setLoading(true)
+            } catch (error) {
+                console.error('Error fetching materials:', error);
+            }
+        };
+        fetchMaterials();
+    }, []);
+
+    // Categorize materials based on their content type
+    const categorizedMaterials = materials.reduce((acc, item) => {
+        const contentType = item.content.toLowerCase();
+        if (!acc[contentType]) {
+            acc[contentType] = [];
+        }
+        acc[contentType].push(item);
+        return acc;
+    }, {});
 
     const renderItem = ({ item }) => (
         <TouchableOpacity
-            style={[styles.listItem, localStyles.listItem]} // Use local styles
-            onPress={() => {
-               item.contentType === 'pdf' 
-                                   ? navigation.navigate('Material', { item }) 
-                                   : Linking.openURL(item.fileUrl)
-            }}
+            key={item._id}
+            onPress={() =>
+                navigation.navigate('Material', {
+                    item: {
+                        content: item.content,
+                        fileUrl: item.fileUrl
+                    }
+                })
+            }
+            style={localStyles.itemContainer}
         >
-            <Image source={ item.contentType === 'pdf' ? require('../assets/Images/pdf.png') : require('../assets/Images/youtube.png')} style={localStyles.pdfIcon} />
-            <Text style={[styles.listItem, localStyles.listItemText]}>{item.content}</Text>
+            <View style={[styles.materialHomeDesign, { width: 50, height: 50 }]}>
+                <Image source={item.content_type.toLowerCase() === 'pdf' ? require('../assets/Images/pdf.png') : require('../assets/Images/youtube.png')} style={[styles.home_pdf_Icon, { width: 30, height: 30 }]} />
+            </View>
+            <Text style={[styles.textDefault, localStyles.itemText]}>
+                {item.content}
+            </Text>
         </TouchableOpacity>
     );
 
     const renderSection = (title, data) => (
-        <View style={localStyles.sectionContainer} key={title}> {/* Added key here */}
+        <View style={localStyles.sectionContainer} key={title}>
             <Text style={[styles.headingText, localStyles.sectionTitle]}>{title}</Text>
             <FlatList
                 data={data}
                 renderItem={renderItem}
+                keyExtractor={(item) => item._id}
                 horizontal
-                keyExtractor={(item, index) => index.toString()}
-                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={localStyles.listContent}
             />
         </View>
     );
 
+    const { isGradient, gradientColors, start, end, solidColor } = parseGradient(groupTheme);
+    const renderContent = () => {
+        return (
+            <>
+                <View style={styles.absoluteCode}>
+                    <Notification />
+                </View>
+                <View style={{ flex: 1, width: '100%' }}>
+                    {
+                        !loading ? (
+                            <ActivityIndicator size="large" color={colors.primary} style={{ marginTop: 20 }} />
+
+                        ) : (
+                            materials.length === 0 ? (
+                                <View style={{justifyContent: 'center', alignItems: 'center', paddingVertical: '100%'}}>
+                                    <Text style={[styles.textDefault, {fontSize: 20}]}>Material Unavailable</Text>
+                                </View>
+                            ) : (
+                                <>
+                                    <Text style={[styles.headingText, { fontSize: 30, marginVertical: 15 }]}>Library</Text>
+                                    {Object.keys(categorizedMaterials).map((sectionTitle) =>
+                                        renderSection(sectionTitle, categorizedMaterials[sectionTitle])
+                                    )}
+                                </>
+                            )
+                        )
+                    }
+                </View>
+            </>
+        )
+    }
+
     return (
-        <View style={styles.parentDiv}>
-            <View style={styles.absoluteCode}>
-                <Notification />
-            </View>
-
-            <View style={{ flex: 1, width: '100%'}}>{/* Added flex:1 to the content container */}
-                {Object.keys(pdfs).map(sectionTitle => (
-                    renderSection(sectionTitle, pdfs[sectionTitle])
-                ))}
-            </View>
-
-        </View>
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+            {isGradient ? (
+                <LinearGradient colors={gradientColors} start={start} end={end} style={styles.parentDiv}>
+                    {renderContent()}
+                </LinearGradient>
+            ) : (
+                <View style={[styles.parentDiv, { backgroundColor: solidColor }]}>
+                    {renderContent()}
+                </View>
+            )}
+        </TouchableWithoutFeedback>
     );
 };
 
-const localStyles = StyleSheet.create({ // Create a separate style sheet
+const localStyles = StyleSheet.create({
     sectionContainer: {
         width: '100%',
         paddingHorizontal: 10,
@@ -77,27 +129,30 @@ const localStyles = StyleSheet.create({ // Create a separate style sheet
     },
     sectionTitle: {
         textAlign: 'left',
-        fontSize: 18,
+        fontSize: 20,
         fontWeight: 'bold',
-        marginBottom: 20,
+        marginBottom: 10,
+        textTransform: 'capitalize',
     },
-    listItem: {
-        flexDirection: 'column',
-        alignContent: 'center',
-        padding: 15, // Add padding
-        marginRight: 10, // Space between items
-        borderRadius: 8,  // Rounded corners for the list items
-        backgroundColor: 'rgba(255, 255, 255, 0.38)', 
-        width: '150',
+    itemContainer: {
+        flex: 1,
+        padding: 5,
+        alignItems: 'center',
+        marginBottom: 15,
     },
-    listItemText: {
-        marginLeft: 10,
-        color: 'white', // Example text color
+    itemText: {
+        marginVertical: 10,
     },
-    pdfIcon: {
-        width: 50,
-        height: 50,
+    columnWrapper: {
+        justifyContent: 'space-between',
     },
+    listContent: {
+        paddingBottom: 20,
+    },
+    imIcon: {
+        width: 30,
+        height: 30,
+    }
 });
 
 export default LibraryScreen;

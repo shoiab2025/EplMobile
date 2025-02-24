@@ -1,107 +1,212 @@
-import React from 'react';
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Pressable } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Pressable, AppState, FlatList, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import style from '../assets/styles/main_style';
 import { app_config } from '../assets/app_config';
 import { colors } from '../assets/styles/colors';
 import Notification from '../Components/notification';
 import { useAuth } from './AuthContext';
 import { useNavigation } from '@react-navigation/native';
+import { parseGradient } from '../Components/gradient';
+import LinearGradient from 'react-native-linear-gradient';
+import Toast from 'react-native-toast-message';
+import { getUsersByRank, getUserTestHistoryById, logout } from '../API_STORE/userApi';
+import Certificate from './Certificate';
 
 const ProfileScreen = () => {
-  const { setUserLoggedIn } = useAuth();
   const navigation = useNavigation();
   const stylings = style();
+  const { groupTheme, authUser, setAuthUser } = useAuth();
+  const { isGradient, gradientColors, start, end, solidColor } = parseGradient(groupTheme);
+  const [userTests, setUserTests] = useState([]);
+  const [errorMessge, setErrorMessage] = useState([]);
+  const [userRanks, setUserRanks] = useState([]);
 
-  return (
+  const handleLogout = async () => {
+    try {
+      const response = await logout(authUser);
+      console.log(response);
 
-    <ScrollView>
-      <View style={stylings.parentDiv}>
-        <View style={stylings.absoluteCode}>
+      if (response) {
+        Toast.show({
+          type: 'success',
+          text1: 'Logout Successful',
+          text2: 'See you soon!',
+        });
+        setAuthUser(null);
+      }
+    } catch (error) {
+      console.error("Logout error:", error);
+      Toast.show({
+        type: 'error',
+        text1: 'Logout Failed',
+        text2: 'Please try again later.',
+      });
+    }
+  };
+
+  useEffect(() => {
+    const getTestForUser = async () => {
+      const response = await getUserTestHistoryById(authUser._id);
+      if (response.success) {
+        setUserTests(response.data)
+      }
+      else {
+        setErrorMessage(response.message)
+      }
+    }
+
+    getTestForUser();
+  }, [])
+
+  useEffect(() => {
+    const getUsersForTest = async () => {
+      const response = await getUsersByRank();
+      if (response.success) {
+        setUserRanks(response.data)
+      }
+      else {
+        setErrorMessage(response.message)
+      }
+    }
+
+    getUsersByRank();
+  }, [])
+
+  const returnContent = () => {
+    return (
+      <>
+        <ScrollView>
+          <View style={stylings.absoluteCode}>
           <Notification />
         </View>
-        <View style={[stylings.absoluteCode, { left: '15' }]}>
-          <View style={stylings.notificationStyle}>
-            <Pressable onPress={() => { navigation.navigate('Settings') }}>
-              {app_config.svgs.gearIcons(colors.primary)}
-            </Pressable>
-          </View>
-        </View>
-        <View style={styles.profileContainer}>
-          <View style={styles.avatarContainer}>
-            <View style={styles.avatar}>
-              <Text style={styles.avatarText}>UN</Text>
-            </View>
-            <TouchableOpacity style={styles.editButton}>
-              {app_config.svgs.editIcon(colors.primary)}
-            </TouchableOpacity>
-          </View>
-          <Text style={styles.userName}>User Name</Text>
-        </View>
-
-        <View style={[styles.scoreboard]}>
-          <Text style={styles.sectionTitle}>Score Board</Text>
-          <View style={styles.scoreRow}>
-            <View style={styles.scoreItem}>
-              {app_config.svgs.fireIcon(colors.darkGold)}
-              <Text style={styles.scoreLabel}>Streak</Text>
-              <Text style={styles.scoreValue}>17</Text>
-            </View>
-            <View style={styles.scoreItem}>
-              {app_config.svgs.scoreIcon(colors.primary)}
-              <Text style={styles.scoreLabel}>Score</Text>
-              <Text style={styles.scoreValue}>13000</Text>
-            </View>
-            <View style={styles.scoreItem}>
-              {app_config.svgs.Leader(colors.brown)}
-              <Text style={styles.scoreLabel}>Rank</Text>
-              <Text style={styles.scoreValue}>4</Text>
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 }}>
+          <View style={[stylings.absoluteCode, { left: '15' }]}>
+            <View style={stylings.notificationStyle}>
+              <Pressable onPress={() => navigation.navigate('Settings')}>
+                {app_config.svgs.gearIcons(colors.primary)}
+              </Pressable>
             </View>
           </View>
-        </View>
-
-        {/* Achievements */}
-        <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Achievements</Text>
-            <TouchableOpacity>
-              <Text style={styles.seeAllText}>See all</Text>
-            </TouchableOpacity>
-          </View>
-          <View style={styles.achievementList}>
-            <View style={styles.achievementItem}>
-              <Text style={styles.achievementDay}>Day 1</Text>
-              <Text style={styles.achievementTitle}>⭐ Star of EPL</Text>
-              <Text style={styles.achievementSubtitle}>Top 20 Rank Holder</Text>
-            </View>
-            <View style={styles.achievementItem}>
-              <Text style={styles.achievementDay}>Day 2</Text>
-              <Text style={styles.achievementTitle}>🏆 Champion of EPL</Text>
-              <Text style={styles.achievementSubtitle}>Rank 1 Holder</Text>
-            </View>
-          </View>
-        </View>
-        <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Certificates</Text>
-            <TouchableOpacity>
-              <Text style={styles.seeAllText}>See all</Text>
-            </TouchableOpacity>
-          </View>
-          <View horizontal showsHorizontalScrollIndicator={false} style={styles.certificateScroll}>
-            {[1, 2, 3, 4].map((day) => (
-              <View key={day} style={styles.certificateItem}>
-                <Text style={styles.certificateText}>Day {day}</Text>
+          <View style={styles.profileContainer}>
+            <View style={styles.avatarContainer}>
+              <View style={styles.avatar}>
+                <Text style={styles.avatarText}>
+                  {authUser && authUser.name && authUser.name.split(" ").map(word => word[0]).join("")}
+                </Text>
               </View>
-            ))}
+              <TouchableOpacity style={styles.editButton} onPress={() => { navigation.navigate('ProfileEdit') }}>
+                {app_config.svgs.editIcon(colors.primary)}
+              </TouchableOpacity>
+            </View>
+            <Text style={styles.userName}>{authUser?.name}</Text>
+          </View>
+
+
+          <View style={[styles.scoreboard]}>
+            <Text style={styles.sectionTitle}>Score Board</Text>
+            <View style={styles.scoreRow}>
+              <View style={styles.scoreItem}>
+                {app_config.svgs.fireIcon(colors.darkGold)}
+                <Text style={styles.scoreLabel}>Streak</Text>
+                <Text style={styles.scoreValue}>{userTests.length}</Text>
+
+              </View>
+              <View style={styles.scoreItem}>
+                {app_config.svgs.scoreIcon(colors.primary)}
+                <Text style={styles.scoreLabel}>Score</Text>
+                <Text style={styles.scoreValue}>{userTests.length === 0 ? userTests.length : userTests.data.score}</Text>
+              </View>
+              <View style={styles.scoreItem}>
+                {app_config.svgs.Leader(colors.brown)}
+                <Text style={styles.scoreLabel}>Rank</Text>
+                <Text style={styles.scoreValue}>4</Text>
+              </View>
+            </View>
+            {
+              userTests.length === 0 && (
+                <Text style={[styles.scoreValue, { fontSize: 12, fontWeight: '400', color: 'red', textAlign: 'center', width: '100%', paddingTop: 5 }]}>Test Results not found</Text>
+              )
+            }
+          </View>
+
+          {/* Achievements */}
+          <View style={styles.section}>
+            <View style={styles.sectionHeader}>
+              <Text style={styles.sectionTitle}>Achievements</Text>
+              <TouchableOpacity>
+                <Text style={styles.seeAllText}>See all</Text>
+              </TouchableOpacity>
+            </View>
+            {
+              userTests.length === 0 ? (
+                <Text style={[styles.scoreValue, { fontSize: 12, fontWeight: '400', color: 'red', textAlign: 'center', width: '100%', paddingTop: 5 }]}>Test Results not found</Text>
+              ) : (
+                <View style={styles.achievementList}>
+                  <View style={styles.achievementItem}>
+                    <Text style={styles.achievementDay}>{userTests[0]?.test?.name}</Text>
+                    <Text style={styles.achievementTitle}>{userTests[0]?.achievement?.name}</Text>
+                  </View>
+                  <View style={styles.achievementItem}>
+                    <Text style={styles.achievementDay}>{userTests[1]?.test?.name}</Text>
+                    <Text style={styles.achievementTitle}>{userTests[1]?.achievement?.name}</Text>
+                  </View>
+                </View>
+              )
+            }
+          </View>
+          <View style={styles.section}>
+            <View style={styles.sectionHeader}>
+              <Text style={styles.sectionTitle}>Certificates</Text>
+              <TouchableOpacity>
+                <Text style={styles.seeAllText}>See all</Text>
+              </TouchableOpacity>
+            </View>
+            <View horizontal showsHorizontalScrollIndicator={false} style={styles.certificateScroll}>
+              userTests.length === 0 ? (
+              <Text style={[styles.scoreValue, { fontSize: 12, fontWeight: '400', color: 'red', textAlign: 'center', width: '100%', paddingTop: 5 }]}>Test Results not found</Text>
+              ) : (
+
+              <FlatList
+                data={userTests}
+                keyExtractor={(item) => item.toString()} // Ensuring a unique key
+                horizontal
+                renderItem={({ item }) => (
+                  <TouchableOpacity onPress={() => navigation.navigate('Certificate', { user: authUser?.name, testDate: item?.test, season: 3, year: new Date().getFullYear() })}>
+                    <View style={styles.certificateItem}>
+                      <Text style={styles.certificateText}>Day {item}</Text>
+                    </View>
+                  </TouchableOpacity>
+                )}
+              />;
+              )
+            </View>
+          </View>
+          <View style={styles.section}>
+            <TouchableOpacity
+              style={[stylings.button, { width: '100%', marginTop: '0' }]}
+              onPress={handleLogout} // Use handleLogout here
+            >
+              <Text style={[stylings.buttonText, { fontSize: 15 }]}>Logout</Text>
+            </TouchableOpacity>
           </View>
         </View>
-        <View style={styles.section}>
-          <TouchableOpacity style={[stylings.button, { width: '100%', marginTop: '0' }]} onPress={async () => { }}>
-            <Text style={[stylings.buttonText, { fontSize: 15 }]}>Logout</Text>
-          </TouchableOpacity>
+        </ScrollView>
+      </>
+    )
+  }
+
+  return (
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      {isGradient ? (
+        <LinearGradient colors={gradientColors} start={start} end={end} style={[styles.parentDiv, {flex:1}]}>
+          {returnContent()}
+        </LinearGradient>
+      ) : (
+        <View style={[styles.parentDiv, { backgroundColor: solidColor, flex: 1 }]}>
+          {returnContent()}
         </View>
-      </View>
-    </ScrollView>
+      )}
+    </TouchableWithoutFeedback>
   );
 };
 
@@ -127,7 +232,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   avatarText: {
-    fontSize: 20,
+    fontSize: 35,
     fontWeight: 'bold',
     color: '#FFFFFF',
   },
@@ -141,9 +246,9 @@ const styles = StyleSheet.create({
   },
   userName: {
     marginTop: 8,
-    fontSize: 18,
+    fontSize: 25,
     fontWeight: 'bold',
-    color: '#000',
+    color: colors.brown,
   },
   scoreboard: {
     backgroundColor: colors.white,
@@ -171,6 +276,8 @@ const styles = StyleSheet.create({
   },
   scoreItem: {
     alignItems: 'center',
+    justifyContent: 'center',
+    alignSelf: 'center'
   },
   scoreLabel: {
     fontSize: 14,

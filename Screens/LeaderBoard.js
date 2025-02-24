@@ -1,155 +1,206 @@
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
-import React from 'react';
+import {
+    View, Text, StyleSheet, ScrollView,
+    TouchableOpacity, TouchableWithoutFeedback, Keyboard
+} from 'react-native';
+import React, { useState, useEffect } from 'react';
 import styles from '../assets/styles/main_style';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import Notification from '../Components/notification';
 import { colors } from '../assets/styles/colors';
-import style from '../assets/styles/main_style';
+import { useAuth } from './AuthContext';
+import { parseGradient } from '../Components/gradient';
+import LinearGradient from 'react-native-linear-gradient';
 
 const LeaderBoardScreen = () => {
     const route = useRoute();
     const group = route.params?.group || {};
-    const styles = style();
     const navigation = useNavigation();
-    // Sample leaderboard data categorized by weeks
-    const leaderboardData = [
-        { rank: 1, group: 'Group A', score: 95, user: 'John', week: 1 },
-        { rank: 2, group: 'Group B', score: 90, user: 'Emma', week: 1 },
-        { rank: 3, group: 'Group C', score: 85, user: 'Liam', week: 1 },
-        { rank: 1, group: 'Group D', score: 80, user: 'Sophia', week: 2 },
-        { rank: 2, group: 'Group E', score: 75, user: 'Noah', week: 2 },
-        { rank: 3, group: 'Group F', score: 70, user: 'Olivia', week: 2 },
-        { rank: 1, group: 'Group G', score: 65, user: 'James', week: 3 },
-        { rank: 2, group: 'Group H', score: 60, user: 'Isabella', week: 3 },
-        { rank: 1, group: 'Group I', score: 55, user: 'Ethan', week: 4 },
-        { rank: 2, group: 'Group J', score: 50, user: 'Mia', week: 4 }
-    ];
+    const { groupTheme } = useAuth();
+    const [leaderboardData, setLeaderboardData] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const currentUser = 'Henry'; // Change this dynamically as needed
 
-    const currentUser = 'Noah'; // Set the logged-in user dynamically
+    useEffect(() => {
+        const fetchLeaderboardData = async () => {
+            setLoading(true);
+            setError(null);
+            try {
+                // Mock Data
+                const sampleData = [
+                    { rank: 1, group: 'Group A', score: 43, user: 'Bryan Wolf', week: 1 },
+                    { rank: 2, group: 'Group B', score: 40, user: 'Meghan Jes...', week: 1 },
+                    { rank: 3, group: 'Group C', score: 38, user: 'Alex Turner', week: 1 },
+                    { rank: 4, group: 'Group D', score: 36, user: 'Marsha Fisher', week: 1 },
+                    { rank: 5, group: 'Group E', score: 35, user: 'Juanita Cormier', week: 1 },
+                    { rank: 6, group: 'Group F', score: 34, user: 'Henry', week: 1 },
+                    { rank: 7, group: 'Group G', score: 33, user: 'Tamara Schmidt', week: 1 },
+                    { rank: 8, group: 'Group H', score: 32, user: 'Ricardo Veum', week: 1 },
+                    { rank: 9, group: 'Group I', score: 31, user: 'Gary Sanford', week: 1 },
+                    { rank: 10, group: 'Group J', score: 30, user: 'Becky Bartell', week: 1 },
+                ];
+                setLeaderboardData(sampleData);
+            } catch (err) {
+                console.error("Error fetching leaderboard data:", err);
+                setError(err);
+            } finally {
+                setLoading(false);
+            }
+        };
 
-    // Group leaderboard data by week
-    const weeks = [1, 2, 3, 4];
-    const leaderboardByWeek = weeks.map(week => ({
-        week,
-        data: leaderboardData.filter(item => item.week === week)
-    }));
+        fetchLeaderboardData();
+    }, []);
 
-    return (
-        <View style={styles.parentDiv}>
-            {/* Notification Bar */}
+    const { isGradient, gradientColors, start, end, solidColor } = parseGradient(groupTheme);
+
+    const renderContent = () => (
+        <>
             <View style={styles.absoluteCode}>
                 <Notification />
             </View>
-
-            {/* Scrollable Leaderboard */}
-            <ScrollView style={localStyles.scrollContainer}>
+            <ScrollView contentContainerStyle={localStyles.container}>
                 <Text style={localStyles.title}>Leaderboard</Text>
-                <TouchableOpacity style={[styles.button, { width: '50%', marginVertical: 0, alignSelf: 'center' }]} onPress={() => { navigation.navigate('Perfomances') }}>
-                    <Text style={[styles.buttonText, { fontSize: 15 }]}>Perfomances</Text>
-                </TouchableOpacity>
-                {leaderboardByWeek.map(({ week, data }) => (
-                    <View key={week}>
-                        <Text style={localStyles.weekTitle}>Week {week}</Text>
+                
+                {/* Week Selection Buttons */}
+                <View style={localStyles.weekButtonsContainer}>
+                    {['Week 1', 'Week 2', 'Week 3', 'Week 4'].map((week, index) => (
+                        <TouchableOpacity
+                            key={index}
+                            style={localStyles.weekButton}
+                            onPress={() => navigation.navigate('Perfomances')}
+                        >
+                            <Text style={localStyles.weekButtonText}>{week}</Text>
+                        </TouchableOpacity>
+                    ))}
+                </View>
 
-                        {/* Table Header */}
-                        <View style={localStyles.tableHeader}>
-                            <Text style={[localStyles.headerCell, { width: '15%' }]}>Rank</Text>
-                            <Text style={[localStyles.headerCell, { width: '40%' }]}>User</Text>
-                            <Text style={[localStyles.headerCell, { width: '30%' }]}>Group</Text>
-                            <Text style={[localStyles.headerCell, { width: '15%' }]}>Score</Text>
+                {/* Leaderboard List */}
+                <View>
+                    {leaderboardData.map((item, index) => (
+                        <View key={index} style={[
+                            localStyles.leaderboardItem,
+                            index === 0 ? localStyles.firstPlace :
+                            index === 1 ? localStyles.secondPlace :
+                            index === 2 ? localStyles.thirdPlace :
+                            item.user === currentUser ? localStyles.currentUser : {}
+                        ]}>
+                            <Text style={localStyles.rank}>{item.rank}</Text>
+                            <Text style={[
+                                localStyles.name,
+                                (index <= 2 || item.user === currentUser) && { color: '#fff' }
+                            ]}>
+                                {item.user === currentUser ? `${item.user} - You` : item.user}
+                            </Text>
+                            <Text style={[
+                                localStyles.score,
+                                (index <= 2 || item.user === currentUser) && { color: '#fff' }
+                            ]}>
+                                {item.score} pts
+                            </Text>
                         </View>
+                    ))}
+                </View>
 
-                        {/* Table Rows */}
-                        {data.map((item, index) => {
-                            let rowStyle = localStyles.defaultRow;
-
-                            if (index === 0) rowStyle = localStyles.firstPlace;
-                            else if (index === 1) rowStyle = localStyles.secondPlace;
-                            else if (index === 2) rowStyle = localStyles.thirdPlace;
-                            else if (item.user === currentUser) rowStyle = localStyles.currentUserRow;
-                            else rowStyle = index % 2 === 0 ? localStyles.evenRow : localStyles.oddRow;
-
-                            return (
-                                <View key={index} style={[localStyles.tableRow, rowStyle]}>
-                                    <Text style={[localStyles.cell, { width: '15%' }]}>{item.rank}</Text>
-                                    <Text style={[localStyles.cell, { width: '40%' }]}>{item.user}</Text>
-                                    <Text style={[localStyles.cell, { width: '30%' }]}>{item.group}</Text>
-                                    <Text style={[localStyles.cell, { width: '15%' }]}>{item.score}</Text>
-                                </View>
-                            );
-                        })}
-                    </View>
-                ))}
+                {/* Performance Button */}
+                <TouchableOpacity style={localStyles.performanceButton} onPress={() => navigation.navigate('Perfomances')}>
+                    <Text style={localStyles.performanceButtonText}>View Performances</Text>
+                </TouchableOpacity>
             </ScrollView>
-        </View>
+        </>
+    );
+
+    return (
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+            {isGradient ? (
+                <LinearGradient colors={gradientColors} start={start} end={end} style={localStyles.gradientBackground}>
+                    {renderContent()}
+                </LinearGradient>
+            ) : (
+                <View style={[localStyles.gradientBackground, { backgroundColor: solidColor }]}>
+                    {renderContent()}
+                </View>
+            )}
+        </TouchableWithoutFeedback>
     );
 };
 
 const localStyles = StyleSheet.create({
-    scrollContainer: {
-        flex: 1,
-        width: '100%',
-        paddingHorizontal: 5,
-        marginTop: 15,
+    container: {
+        paddingVertical: 20,
+        paddingHorizontal: 15,
     },
     title: {
-        fontSize: 22,
+        fontSize: 24,
         fontWeight: 'bold',
         textAlign: 'center',
-        marginBottom: 10,
+        marginBottom: 20,
         color: colors.primary,
     },
-    weekTitle: {
+    weekButtonsContainer: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        marginBottom: 20,
+    },
+    weekButton: {
+        paddingVertical: 8,
+        paddingHorizontal: 12,
+        backgroundColor: colors.primary,
+        borderRadius: 5,
+        marginHorizontal: 5,
+    },
+    weekButtonText: {
+        fontSize: 14,
+        color: 'white',
+        fontWeight: 'bold',
+    },
+    leaderboardItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding: 10,
+        borderBottomWidth: 1,
+        borderBottomColor: '#ddd',
+        borderRadius: 8,
+        marginVertical: 5,
+        backgroundColor: 'rgba(255, 255, 255, 0.85)',
+    },
+    rank: {
         fontSize: 18,
         fontWeight: 'bold',
+        width: 40,
         textAlign: 'center',
-        marginTop: 20,
-        marginBottom: 10,
-        color: colors.secondary,
     },
-    tableHeader: {
-        flexDirection: 'row',
-        backgroundColor: colors.gold,
-        padding: 10,
-        borderRadius: 8,
-        marginBottom: 5,
+    name: {
+        fontSize: 16,
+        flex: 1,
     },
-    headerCell: {
+    score: {
         fontSize: 16,
         fontWeight: 'bold',
-        textAlign: 'center',
+        width: 80,
+        textAlign: 'right',
+    },
+    firstPlace: { backgroundColor: '#FFD700' },
+    secondPlace: { backgroundColor: '#C0C0C0' },
+    thirdPlace: { backgroundColor: '#CD7F32' },
+    currentUser: { backgroundColor: '#0096FF' },
+    performanceButton: {
+        marginTop: 20,
+        padding: 12,
+        backgroundColor: colors.primary,
+        borderRadius: 5,
+        alignItems: 'center',
+    },
+    performanceButtonText: {
         color: 'white',
+        fontSize: 16,
+        fontWeight: 'bold',
     },
-    tableRow: {
-        flexDirection: 'row',
-        paddingVertical: 8,
-        borderBottomWidth: 1,
-        borderBottomColor: 'rgba(255, 255, 255, 0.2)',
+    gradientBackground: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 10,
     },
-    firstPlace: {
-        backgroundColor: '#FFD700', // Gold
-    },
-    secondPlace: {
-        backgroundColor: '#C0C0C0', // Silver
-    },
-    thirdPlace: {
-        backgroundColor: '#CD7F32', // Bronze
-    },
-    currentUserRow: {
-        backgroundColor: 'rgba(0, 150, 255, 0.5)', // Highlight for logged-in user
-    },
-    evenRow: {
-        backgroundColor: 'rgba(255, 255, 255, 0.15)',
-    },
-    oddRow: {
-        backgroundColor: 'rgba(255, 255, 255, 0.25)',
-    },
-    cell: {
-        fontSize: 14,
-        textAlign: 'center',
-        color: 'white',
-        paddingVertical: 5,
-    }
 });
 
 export default LeaderBoardScreen;

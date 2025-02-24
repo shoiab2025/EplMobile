@@ -1,30 +1,32 @@
-import React, { useState, useEffect } from 'react';
-import { StatusBar, StyleSheet, Text, View } from 'react-native';
+import React, { useEffect } from 'react';
+import { StatusBar, StyleSheet, View } from 'react-native'; // Import only what you need
 import SplashScreen from 'react-native-splash-screen';
 import Toast from 'react-native-toast-message';
 import { NavigationContainer } from '@react-navigation/native';
-import { AuthProvider } from './Screens/AuthContext';
-import styles from './assets/styles/main_style';
+import { AuthProvider, useAuth } from './Screens/AuthContext';
 import RootNavigator from './Screens/RootNavigator';
-const App = () => {
-  const [isLoading, setIsLoading] = useState(true);
+import style from './assets/styles/main_style';
 
-  useEffect(() => {
-    SplashScreen.hide();
-  }, []);
-  return (
-    <AuthProvider>
-
-    <NavigationContainer>
-      <View style={{flex: 1}}>
-        <RootNavigator />
-      </View>
-      < Toast />
-    </NavigationContainer>
-
-  </AuthProvider>
-  );
+const App: React.FC = () => { // Use React.FC for type safety
+    useEffect(() => {
+        SplashScreen.hide(); // Hide splash screen
+    }, []);
+    return (
+        <AuthProvider>
+            <NavigationContainer>
+                <View style={styles.container}> {/* Use a style for the main view */}
+                    <RootNavigator />
+                </View>
+                <Toast /> {/* Toast should be a direct child of NavigationContainer */}
+            </NavigationContainer>
+        </AuthProvider>
+    );
 };
 
+const styles = StyleSheet.create({ // Define styles in App.tsx or in a separate file
+    container: {
+        flex: 1,
+    },
+});
 
 export default App;

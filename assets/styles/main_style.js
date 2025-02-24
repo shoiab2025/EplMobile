@@ -5,61 +5,61 @@ import { useAuth } from "../../Screens/AuthContext";
 const style = () => {
   const { groupTheme } = useAuth();
 
-  return(
+  return (
     StyleSheet.create({
       parentDiv: {
         flex: 1,
-        backgroundColor: groupTheme, 
         justifyContent: 'center',
         alignItems: 'center',
-        padding: 20,
+        paddingHorizontal: 20,
+        width: '100%'
       },
-    
+
       logo_default_size: {
         width: 230,
         height: '150',
         resizeMode: "contain",
         marginBottom: 5,
       },
-    
+
       text_default: {
         textAlign: 'center',
         fontSize: 16,
         lineHeight: 20,
         marginVertical: 10,
-        fontFamily: 'CrimsonText-Bold'
+        fontFamily: 'Inter_18pt-Bold'
       },
-    
+
       GroupScreenOptionBtns: {
         backgroundColor: colors.primary,
-        marginVertical: 5,
+        marginVertical: 15,
         padding: 10,
-        width: 300,
-        height: 68,
+        width: '100%',
+        height: 70,
         borderRadius: 10,
         textAlign: 'center',
         justifyContent: 'center',
         alignItems: 'center',
       },
-    
+
       GroupText: {
         color: colors.gold,
-        fontSize: 18,
+        fontSize: 20,
         fontWeight: '700',
-        letterSpacing: 1.3,
+        letterSpacing: 1,
         fontFamily: "Inter_18pt-Bold",
       },
-      
+
       headingText: {
         fontSize: 20,
         color: colors.primary,
         width: 'auto',
-        marginBottom: 10,
+        marginBottom: 5,
         fontWeight: 'bold',
         fontFamily: 'CrimsonText-Bold'
       },
-    
-      whiteCardBgStyle : {
+
+      whiteCardBgStyle: {
         backgroundColor: colors.white,
         width: 320,
         height: 'auto',
@@ -67,28 +67,30 @@ const style = () => {
         justifyContent: 'center',
         alignItems: 'center',
         padding: 20,
-        elevation: 3
+        boxShadow: '0px 5px 5px rgba(0, 0, 0, 0.4)'
       },
-    
+
       inputField: {
         width: '100%',
         borderWidth: 1,
         marginVertical: 5,
-        borderRadius: 5,   
+        marginBottom: 10,
+        borderRadius: 5,
         padding: 10,
         color: '#000',
-        backgroundColor: colors.white
+        backgroundColor: '#fff',
+        fontFamily: "Inter_18pt-Bold",
       },
-    
+
       lableText: {
         textAlign: 'left',
         width: '100%',
         color: colors.primary,
         fontWeight: '700',
         fontSize: 16,
-    
+        fontFamily: "Inter_18pt-Bold",
       },
-    
+
       button: {
         width: '80%',
         backgroundColor: colors.primary,
@@ -101,68 +103,67 @@ const style = () => {
         paddingHorizontal: 20,
         elevation: 5,
       },
-       buttonText: {
+      buttonText: {
         fontSize: 18,
         color: colors.white,
         fontWeight: '700'
-       },
-    
-       subText: {
+      },
+
+      subText: {
         width: '100%',
         textAlign: 'right',
         color: colors.primary
-       },
-    
-       sec_button: {
+      },
+
+      sec_button: {
         width: '80%',
         backgroundColor: 'transperent',
         color: colors.primary,
         borderWidth: 1,
-        height: 40,
+        height: 42,
         alignItems: 'center',
         justifyContent: 'center',
         borderRadius: 5,
-        marginTop: 15,
-        paddingHorizontal: 20
+        paddingHorizontal: 20,
       },
-    
+
       sec_buttonText: {
-      color: colors.primary,
-      fontWeight: '700'
+        color: colors.primary,
+        fontWeight: '700',
+        fontSize: 18
       },
-    
+
       eyeButton: {
-      position: 'absolute',
-      top: 20,
-      right: 15,
+        position: 'absolute',
+        top: 20,
+        right: 15,
       },
-    
+
       modalDesign: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: colors.blackTransperent,
+        backgroundColor: colors.blkTrns2,
       },
-    
+
       modalContainerDesign: {
         backgroundColor: colors.white,
         width: 300,
-        height: 'auto',
+        minHeighteight: '350',
         justifyContent: 'center',
         alignItems: 'center',
-        paddingVertical: 25,
-        paddingHorizontal: 10,
+        paddingVertical: 20,
+        paddingHorizontal: 20,
         borderRadius: 10,
-        elevation: 2,
         position: 'relative'
       },
-    
+
       closeBtn: {
         position: 'absolute',
-        top: 10,
-        right: 10,
+        top: 5,
+        right: 5,
       },
-    
+
       boldText: {
         fontSize: 14,
         textAlign: 'left',
@@ -170,17 +171,17 @@ const style = () => {
         fontFamily: 'Inter_18pt-Bold',
         color: colors.primary
       },
-       
+
       relativeCode: {
         position: "relative",
       },
-    
+
       absoluteCode: {
         position: 'absolute',
         right: '15',
         top: '10'
       },
-    
+
       notificationStyle: {
         backgroundColor: colors.white,
         borderRadius: '50%',
@@ -193,13 +194,13 @@ const style = () => {
         borderColor: '#fff',
         elevation: 5,
       },
-    
+
       home_banner_img: {
         width: '300',
         resizeMode: 'contain',
         marginTop: 0,
       },
-    
+
       home_banner_txt: {
         textAlign: 'center',
         fontWeight: 'semibold',
@@ -207,34 +208,36 @@ const style = () => {
         color: colors.brown,
         fontFamily: 'CrimsonText-Bold'
       },
-    
+
       materialHomeDesign: {
         backgroundColor: colors.darkGold,
-        width: 40,
-        height: 40,
+        width: 80,
+        height: 80,
         borderRadius: 50,
         justifyContent: 'center',
         alignItems: 'center',
         marginHorizontal: 10,
-        resizeMode: 'contain'
+        resizeMode: 'contain',
+        gap: 20
       },
-    
+
       listItem: {
         justifyContent: 'center',
         alignItems: 'center'
-      }, 
-    
+      },
+
       textDefault: {
         fontFamily: "Inter_18pt-Bold",
         fontWeight: 'bold',
-        color: colors.primary
-      }, 
-    
+        color: colors.primary,
+        fontSize: 16,
+      },
+
       home_pdf_Icon: {
-        width: 25,
-        height: 25,
+        width: 50,
+        height: 50,
       }
-      
+
     })
   )
 }

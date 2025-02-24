@@ -1,15 +1,18 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Share, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Share, Alert, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import style from '../assets/styles/main_style';
 import { app_config } from '../assets/app_config';
 import { colors } from '../assets/styles/colors';
 import { useAuth } from './AuthContext';
 import { useNavigation } from '@react-navigation/native';
+import LinearGradient from 'react-native-linear-gradient';
+import { parseGradient } from '../Components/gradient';
 
 const Settings = () => {
     const { setUserLoggedIn } = useAuth();
     const navigation = useNavigation();
     const stylings = style();
+    const { setAuthUser, groupTheme } = useAuth();
 
     const handleShareApp = async () => {
         try {
@@ -26,35 +29,49 @@ Join me on this journey of learning and self-improvement! 🚀📲
             console.error(error);
         }
     };
-
-    return (
-        <View style={[stylings.parentDiv, { paddingTop: 30 }]}>
+    const { isGradient, gradientColors, start, end, solidColor } = parseGradient(groupTheme);
+    const renderContent = () => {
+        return (
             <View style={styles.section}>
-                <TouchableOpacity style={[stylings.button, { width: '100%', marginVertical: 5 }]} onPress={() => {}}>
-                    <Text style={[stylings.buttonText, { fontSize: 15 }]}>Support</Text>
+                <TouchableOpacity style={[stylings.button, { width: '100%', marginVertical: 5 }]} onPress={() => Linking.openURL('mailto:theafafway@gmail.com')}>
+                    <Text style={[stylings.buttonText, { fontSize: 15 }]}>Mail Support</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={[stylings.button, { width: '100%', marginVertical: 5 }]} onPress={() => {}}>
+                <TouchableOpacity style={[stylings.button, { width: '100%', marginVertical: 5 }]} onPress={() => Linking.openURL('whatsapp://send?phone=+917200290495')}>
+                    <Text style={[stylings.buttonText, { fontSize: 15 }]}>Whatsapp</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={[stylings.button, { width: '100%', marginVertical: 5 }]} onPress={() => { navigation.navigate('Policy') }}>
                     <Text style={[stylings.buttonText, { fontSize: 15 }]}>Privacy Policy</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={[stylings.button, { width: '100%', marginVertical: 5 }]} onPress={() => {}}>
-                    <Text style={[stylings.buttonText, { fontSize: 15 }]}>Terms & Conditions</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={[stylings.button, { width: '100%', marginVertical: 5 }]} onPress={handleShareApp}>
                     <Text style={[stylings.buttonText, { fontSize: 15 }]}>Share App</Text>
                 </TouchableOpacity>
             </View>
-        </View>
+        );
+    }
+    return (
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+            {isGradient ? (
+                <LinearGradient colors={gradientColors} start={start} end={end} style={[styles.parentDiv, { flex: 1, justifyContent: 'center', alignItems: 'center' }]}>
+                    {renderContent()}
+                </LinearGradient>
+            ) : (
+                <View style={[styles.parentDiv, { backgroundColor: solidColor, flex: 1, justifyContent: 'center', alignItems: 'center' }]}>
+                    {renderContent()}
+                </View>
+            )}
+        </TouchableWithoutFeedback>
     );
 };
 
 const styles = StyleSheet.create({
     section: {
         marginTop: 24,
-        marginHorizontal: 8,
-        width: '100%',
+        width: '80%',
         backgroundColor: colors.white,
         borderRadius: 8,
         padding: 16,
+        justifyContent: 'center',
+        alignItems: 'center'
     },
 });
 
