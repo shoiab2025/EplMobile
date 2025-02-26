@@ -12,13 +12,15 @@ import { colors } from "../assets/styles/colors";
 import { useRoute } from "@react-navigation/native";
 
 const Certificate = ({ userName, testDate, seasonName }) => {
+    console.log("user name", userName);
+
     const viewShotRef = useRef(); // Reference to capture the component
     const { groupTheme, logout, authUser } = useAuth();
     const stylings = style();
-    const route =useRoute();
+    const route = useRoute();
     const params = route.params
     console.log(params);
-    
+
     // Function to capture and save the certificate
     const captureAndSaveCertificate = async () => {
         try {
@@ -31,13 +33,12 @@ const Certificate = ({ userName, testDate, seasonName }) => {
             await Share.open({
                 url: `file://${filePath}`,
                 title: "Download Certificate",
-                message: "Here is your certificate!",
+                message: `EPl Quizz Certificate of Participation of Quiz at ${params.testDate}!`,
             });
 
             alert("Certificate saved successfully!");
         } catch (error) {
             console.error("Error capturing certificate:", error);
-            alert("Failed to save certificate.");
         }
     };
     const { gradientColors, start, end } = parseGradient(groupTheme);
@@ -62,18 +63,32 @@ const Certificate = ({ userName, testDate, seasonName }) => {
                         {/* Overlay Text */}
                         <Svg height="100%" width="100%" style={styles.svgContainer}>
                             {/* User Name */}
-                            <SvgText x="50%" y="40%" fontSize="22" fontWeight="bold" fill="black" textAnchor="middle">
-                                {userName}
+                            <SvgText
+                                x="125px"  // Center the text
+                                y="98px"
+                                fontSize={params.user.length > 25 ? "10" : "15"} // Reduce size if long
+                                fontWeight="bold"
+                                fill={colors.darkGold}
+                                textAnchor="middle"
+                                textLength="200" // Ensures it stays within a fixed width
+                                numberOfLines={1} // Prevents wrapping
+                                ellipsizeMode="tail" // Truncate with "..."
+                            >
+                                {params.user.length > 30 ? params.user.substring(0, 27) + "..." : params.user}
                             </SvgText>
 
+
                             {/* Test Date */}
-                            <SvgText x="20%" y="70%" fontSize="16" fill="black" textAnchor="middle">
-                                {testDate}
+                            <SvgText x="17%" y="79%" fontSize="6" fill="black" textAnchor="middle">
+                                {params.testDate}
+                            </SvgText>
+                            <SvgText x="53%" y="128px" fontSize="6" fill="gray" textAnchor="middle" fontWeight="bold">
+                                {params.year}
                             </SvgText>
 
                             {/* Season Name */}
-                            <SvgText x="50%" y="50%" fontSize="18" fontWeight="bold" fill="black" textAnchor="middle">
-                                {seasonName}
+                            <SvgText x="60%" y="118px" fontSize="6" fontWeight="bold" fill="black" textAnchor="middle">
+                                {params.season}
                             </SvgText>
                         </Svg>
                     </View>

@@ -11,11 +11,12 @@ import LinearGradient from 'react-native-linear-gradient';
 import Toast from 'react-native-toast-message';
 import { getUsersByRank, getUserTestHistoryById, logout } from '../API_STORE/userApi';
 import Certificate from './Certificate';
+import moment from 'moment';
 
 const ProfileScreen = () => {
   const navigation = useNavigation();
   const stylings = style();
-  const { groupTheme, authUser, setAuthUser } = useAuth();
+  const { groupTheme, authUser, setAuthUser, currentRank, currentScore } = useAuth();
   const { isGradient, gradientColors, start, end, solidColor } = parseGradient(groupTheme);
   const [userTests, setUserTests] = useState([]);
   const [errorMessge, setErrorMessage] = useState([]);
@@ -47,8 +48,10 @@ const ProfileScreen = () => {
   useEffect(() => {
     const getTestForUser = async () => {
       const response = await getUserTestHistoryById(authUser._id);
-      if (response.success) {
-        setUserTests(response.data)
+      console.log(response);
+
+      if (response) {
+        setUserTests(response)
       }
       else {
         setErrorMessage(response.message)
@@ -56,7 +59,9 @@ const ProfileScreen = () => {
     }
 
     getTestForUser();
-  }, [])
+  }, []);
+
+  console.log(userTests);
 
   useEffect(() => {
     const getUsersForTest = async () => {
@@ -70,126 +75,142 @@ const ProfileScreen = () => {
     }
 
     getUsersByRank();
-  }, [])
+  }, []);
+
+  console.log("USer Test", userTests);
+
+
+  const getRandomDarkColor = () => {
+    const r = Math.floor(Math.random() * 100);
+    const g = Math.floor(Math.random() * 100);
+    const b = Math.floor(Math.random() * 100);
+    return `rgb(${r}, ${g}, ${b})`;
+  };
 
   const returnContent = () => {
     return (
       <>
         <ScrollView>
           <View style={stylings.absoluteCode}>
-          <Notification />
-        </View>
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 }}>
-          <View style={[stylings.absoluteCode, { left: '15' }]}>
-            <View style={stylings.notificationStyle}>
-              <Pressable onPress={() => navigation.navigate('Settings')}>
-                {app_config.svgs.gearIcons(colors.primary)}
-              </Pressable>
-            </View>
+            <Notification />
           </View>
-          <View style={styles.profileContainer}>
-            <View style={styles.avatarContainer}>
-              <View style={styles.avatar}>
-                <Text style={styles.avatarText}>
-                  {authUser && authUser.name && authUser.name.split(" ").map(word => word[0]).join("")}
-                </Text>
-              </View>
-              <TouchableOpacity style={styles.editButton} onPress={() => { navigation.navigate('ProfileEdit') }}>
-                {app_config.svgs.editIcon(colors.primary)}
-              </TouchableOpacity>
-            </View>
-            <Text style={styles.userName}>{authUser?.name}</Text>
-          </View>
-
-
-          <View style={[styles.scoreboard]}>
-            <Text style={styles.sectionTitle}>Score Board</Text>
-            <View style={styles.scoreRow}>
-              <View style={styles.scoreItem}>
-                {app_config.svgs.fireIcon(colors.darkGold)}
-                <Text style={styles.scoreLabel}>Streak</Text>
-                <Text style={styles.scoreValue}>{userTests.length}</Text>
-
-              </View>
-              <View style={styles.scoreItem}>
-                {app_config.svgs.scoreIcon(colors.primary)}
-                <Text style={styles.scoreLabel}>Score</Text>
-                <Text style={styles.scoreValue}>{userTests.length === 0 ? userTests.length : userTests.data.score}</Text>
-              </View>
-              <View style={styles.scoreItem}>
-                {app_config.svgs.Leader(colors.brown)}
-                <Text style={styles.scoreLabel}>Rank</Text>
-                <Text style={styles.scoreValue}>4</Text>
+          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 }}>
+            <View style={[stylings.absoluteCode, { left: '15' }]}>
+              <View style={stylings.notificationStyle}>
+                <Pressable onPress={() => navigation.navigate('Settings')}>
+                  {app_config.svgs.gearIcons(colors.primary)}
+                </Pressable>
               </View>
             </View>
-            {
-              userTests.length === 0 && (
-                <Text style={[styles.scoreValue, { fontSize: 12, fontWeight: '400', color: 'red', textAlign: 'center', width: '100%', paddingTop: 5 }]}>Test Results not found</Text>
-              )
-            }
-          </View>
-
-          {/* Achievements */}
-          <View style={styles.section}>
-            <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>Achievements</Text>
-              <TouchableOpacity>
-                <Text style={styles.seeAllText}>See all</Text>
-              </TouchableOpacity>
-            </View>
-            {
-              userTests.length === 0 ? (
-                <Text style={[styles.scoreValue, { fontSize: 12, fontWeight: '400', color: 'red', textAlign: 'center', width: '100%', paddingTop: 5 }]}>Test Results not found</Text>
-              ) : (
-                <View style={styles.achievementList}>
-                  <View style={styles.achievementItem}>
-                    <Text style={styles.achievementDay}>{userTests[0]?.test?.name}</Text>
-                    <Text style={styles.achievementTitle}>{userTests[0]?.achievement?.name}</Text>
-                  </View>
-                  <View style={styles.achievementItem}>
-                    <Text style={styles.achievementDay}>{userTests[1]?.test?.name}</Text>
-                    <Text style={styles.achievementTitle}>{userTests[1]?.achievement?.name}</Text>
-                  </View>
+            <View style={styles.profileContainer}>
+              <View style={styles.avatarContainer}>
+                <View style={[styles.avatar, { backgroundColor: getRandomDarkColor() }]}>
+                  <Text style={styles.avatarText}>
+                    {authUser && authUser.name && authUser.name.split(" ").map(word => word[0]).join("")}
+                  </Text>
                 </View>
-              )
-            }
-          </View>
-          <View style={styles.section}>
-            <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>Certificates</Text>
-              <TouchableOpacity>
-                <Text style={styles.seeAllText}>See all</Text>
+                <TouchableOpacity style={styles.editButton} onPress={() => { navigation.navigate('ProfileEdit') }}>
+                  {app_config.svgs.editIcon(colors.primary)}
+                </TouchableOpacity>
+              </View>
+              <Text style={styles.userName}>{authUser?.name}</Text>
+            </View>
+
+
+            <View style={[styles.scoreboard]}>
+              <Text style={styles.sectionTitle}>Score Board</Text>
+              <View style={styles.scoreRow}>
+                <View style={styles.scoreItem}>
+                  {app_config.svgs.fireIcon(colors.darkGold)}
+                  <Text style={styles.scoreLabel}>Streak</Text>
+                  <Text style={styles.scoreValue}>{userTests?.length}</Text>
+
+                </View>
+                <View style={styles.scoreItem}>
+                  {app_config.svgs.scoreIcon(colors.primary)}
+                  <Text style={styles.scoreLabel}>Score</Text>
+                  <Text style={styles.scoreValue}>{currentScore}</Text>
+                </View>
+                <View style={styles.scoreItem}>
+                  {app_config.svgs.Leader(colors.brown)}
+                  <Text style={styles.scoreLabel}>Rank</Text>
+                  <Text style={styles.scoreValue}>{currentRank}</Text>
+                </View>
+              </View>
+              {
+                userTests.length === 0 && (
+                  <Text style={[styles.scoreValue, { fontSize: 12, fontWeight: '400', color: 'red', textAlign: 'center', width: '100%', paddingTop: 5 }]}>Test Results not found</Text>
+                )
+              }
+            </View>
+
+            {/* Achievements */}
+            <View style={styles.section}>
+              <View style={styles.sectionHeader}>
+                <Text style={styles.sectionTitle}>Achievements</Text>
+                <TouchableOpacity>
+                  <Text style={styles.seeAllText}>See all</Text>
+                </TouchableOpacity>
+              </View>
+              {
+                userTests.length === 0 ? (
+                  <Text style={[styles.scoreValue, { fontSize: 12, fontWeight: '400', color: 'red', textAlign: 'center', width: '100%', paddingTop: 5 }]}>Test Results not found</Text>
+                ) : (
+                  <View style={styles.achievementList}>
+                    <FlatList
+                      data={userTests}
+                      keyExtractor={(item) => item?._id.toString()} // Ensuring a unique key
+                      horizontal
+                      renderItem={({ item }) => (
+                        <View style={styles.achievementItem}>
+                          <Text style={styles.achievementDay}>{userTests[0]?.test?.name}</Text>
+                          <Text style={styles.achievementTitle}>{userTests[0]?.achievement?.name}</Text>
+                        </View>
+                      )}
+                    />
+                  </View>
+                )
+              }
+            </View>
+            <View style={styles.section}>
+              <View style={styles.sectionHeader}>
+                <Text style={styles.sectionTitle}>Certificates</Text>
+                <TouchableOpacity>
+                  <Text style={styles.seeAllText}>See all</Text>
+                </TouchableOpacity>
+              </View>
+              <View horizontal showsHorizontalScrollIndicator={false} style={styles.certificateScroll}>
+                {
+                  userTests.length === 0 ? (
+                    <Text style={[styles.scoreValue, { fontSize: 12, fontWeight: '400', color: 'red', textAlign: 'center', width: '100%', paddingTop: 5 }]}>Test Results not found</Text>
+                  ) : (
+
+                    <FlatList
+                      data={userTests}
+                      keyExtractor={(item) => item?._id.toString()} // Ensuring a unique key
+                      horizontal
+                      renderItem={({ item }) => (
+                        <TouchableOpacity onPress={() => navigation.navigate('Certificate', { user: authUser?.name, testDate: moment(item?.submittedAt).format('DD-MM-YYYY'), season: 3, year: new Date().getFullYear() })}>
+                          <View style={styles.certificateItem}>
+                            {app_config.svgs.certificateBadge(colors.darkGold)}
+                            <Text style={styles.certificateText}>{item?.test?.name}</Text>
+                          </View>
+                        </TouchableOpacity>
+                      )}
+                    />
+                  )
+                }
+              </View>
+            </View>
+            <View style={[styles.section]}>
+              <TouchableOpacity
+                style={[stylings.button, { width: '100%', marginTop: '0' }]}
+                onPress={handleLogout} // Use handleLogout here
+              >
+                <Text style={[stylings.buttonText, { fontSize: 15 }]}>Logout</Text>
               </TouchableOpacity>
             </View>
-            <View horizontal showsHorizontalScrollIndicator={false} style={styles.certificateScroll}>
-              userTests.length === 0 ? (
-              <Text style={[styles.scoreValue, { fontSize: 12, fontWeight: '400', color: 'red', textAlign: 'center', width: '100%', paddingTop: 5 }]}>Test Results not found</Text>
-              ) : (
-
-              <FlatList
-                data={userTests}
-                keyExtractor={(item) => item.toString()} // Ensuring a unique key
-                horizontal
-                renderItem={({ item }) => (
-                  <TouchableOpacity onPress={() => navigation.navigate('Certificate', { user: authUser?.name, testDate: item?.test, season: 3, year: new Date().getFullYear() })}>
-                    <View style={styles.certificateItem}>
-                      <Text style={styles.certificateText}>Day {item}</Text>
-                    </View>
-                  </TouchableOpacity>
-                )}
-              />;
-              )
-            </View>
           </View>
-          <View style={styles.section}>
-            <TouchableOpacity
-              style={[stylings.button, { width: '100%', marginTop: '0' }]}
-              onPress={handleLogout} // Use handleLogout here
-            >
-              <Text style={[stylings.buttonText, { fontSize: 15 }]}>Logout</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
         </ScrollView>
       </>
     )
@@ -198,7 +219,7 @@ const ProfileScreen = () => {
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       {isGradient ? (
-        <LinearGradient colors={gradientColors} start={start} end={end} style={[styles.parentDiv, {flex:1}]}>
+        <LinearGradient colors={gradientColors} start={start} end={end} style={[styles.parentDiv, { flex: 1 }]}>
           {returnContent()}
         </LinearGradient>
       ) : (
@@ -235,6 +256,7 @@ const styles = StyleSheet.create({
     fontSize: 35,
     fontWeight: 'bold',
     color: '#FFFFFF',
+    textTransform: 'capitalize'
   },
   editButton: {
     position: 'absolute',
@@ -249,6 +271,7 @@ const styles = StyleSheet.create({
     fontSize: 25,
     fontWeight: 'bold',
     color: colors.brown,
+    textTransform: 'capitalize'
   },
   scoreboard: {
     backgroundColor: colors.white,
@@ -312,6 +335,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#DDD',
     paddingVertical: 8,
+    width: 100,
   },
   achievementDay: {
     fontWeight: 'bold',
@@ -328,9 +352,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   certificateItem: {
-    width: 64,
-    height: 64,
-    backgroundColor: '#D1D5DB',
+    width: 84,
+    height: 84,
+    backgroundColor: colors.primary,
     borderRadius: 8,
     justifyContent: 'center',
     alignItems: 'center',
@@ -338,7 +362,7 @@ const styles = StyleSheet.create({
   },
   certificateText: {
     fontWeight: 'bold',
-    color: '#333',
+    color: '#fff',
   },
 });
 

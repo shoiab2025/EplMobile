@@ -14,4 +14,6 @@ export const colors = {
     brown: '#3C2415',
     TabBarColor: '#4F4F50',
     disabled:'rgba(211, 207, 207, 0.98)',
+    silver: ' #b7b7b7',
+    bronze: ' #a17419'
 };

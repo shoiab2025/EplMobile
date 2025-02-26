@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, TouchableOpacity, Image, StyleSheet, ActivityIndicator, TouchableWithoutFeedback, Keyboard } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, Image, StyleSheet, ActivityIndicator, TouchableWithoutFeedback, Keyboard, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import LinearGradient from 'react-native-linear-gradient';
 import Notification from '../Components/notification';
@@ -81,6 +81,7 @@ const LibraryScreen = () => {
                 <View style={styles.absoluteCode}>
                     <Notification />
                 </View>
+                <ScrollView>
                 <View style={{ flex: 1, width: '100%' }}>
                     {
                         !loading ? (
@@ -93,7 +94,7 @@ const LibraryScreen = () => {
                                 </View>
                             ) : (
                                 <>
-                                    <Text style={[styles.headingText, { fontSize: 30, marginVertical: 15 }]}>Library</Text>
+                                    <Text style={[styles.headingText, { fontSize: 30, marginVertical: 15, marginBottom: 30 }]}>Library</Text>
                                     {Object.keys(categorizedMaterials).map((sectionTitle) =>
                                         renderSection(sectionTitle, categorizedMaterials[sectionTitle])
                                     )}
@@ -102,6 +103,7 @@ const LibraryScreen = () => {
                         )
                     }
                 </View>
+                </ScrollView>
             </>
         )
     }
@@ -125,7 +127,8 @@ const localStyles = StyleSheet.create({
     sectionContainer: {
         width: '100%',
         paddingHorizontal: 10,
-        marginTop: 15,
+        marginVertical: 5,
+        paddingVertical: 5
     },
     sectionTitle: {
         textAlign: 'left',
@@ -133,21 +136,24 @@ const localStyles = StyleSheet.create({
         fontWeight: 'bold',
         marginBottom: 10,
         textTransform: 'capitalize',
+        width: '100%',
+        borderBottomWidth: 1,
     },
     itemContainer: {
         flex: 1,
         padding: 5,
         alignItems: 'center',
-        marginBottom: 15,
+        marginBottom: 0,
     },
     itemText: {
-        marginVertical: 10,
+        marginVertical: 15,
+        textTransform: 'capitalize'
     },
     columnWrapper: {
         justifyContent: 'space-between',
     },
     listContent: {
-        paddingBottom: 20,
+        paddingBottom: 0,
     },
     imIcon: {
         width: 30,

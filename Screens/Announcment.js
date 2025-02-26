@@ -7,6 +7,8 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { parseGradient } from '../Components/gradient';
 import LinearGradient from 'react-native-linear-gradient';
 import moment from 'moment';
+import MaterialViewer from './MaterialViewer';
+import SoundPlayer from 'react-native-sound-player';
 
 const Announcement = () => {
     const { groupTheme } = useAuth();
@@ -44,14 +46,13 @@ Join me on this journey of learning and self-improvement! 🚀📲
                         <>
                             <Text style={{ textAlign: 'center', marginBottom: 5 }}>
                                 {moment(announcementDate).format("DD MMM, YY")}
+
                             </Text>
                             <View style={styles.announcementContainer}>
                                 <Text style={styles.announcementText}>
                                     📢 {item.message}
                                 </Text>
-                                <Text style={styles.dateDisplay}>
-                                    {moment.utc(announcementDate).format("HH:mm")}
-                                </Text>
+                                <Text style={{position: 'absolute', bottom: 5, right: 10, marginTop: 15, color: colors.white, fontSize: 10}}>{moment(announcementDate).format("hh:mm")}</Text>
                             </View>
                         </>
                     );
@@ -92,12 +93,14 @@ const styles = StyleSheet.create({
         marginBottom: 16,
         alignItems: 'center',
         width: 300,
-        height: 80,
+        height: 'auto',
+        minHeight: 80
     },
     announcementText: {
         color: colors.white,
         fontSize: 14,
         textAlign: 'center',
+        lineHeight: 25,
     },
     dateDisplay: {
         color: colors.white,
@@ -109,8 +112,6 @@ const styles = StyleSheet.create({
     },
     parentDiv: {
         flex: 1,
-        alignItems: 'center',
-        justifyContent: 'center',
     }
 });
 

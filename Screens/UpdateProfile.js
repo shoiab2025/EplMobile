@@ -20,6 +20,7 @@ import DropDownPicker from "react-native-dropdown-picker";
 import { colors } from "../assets/styles/colors";
 import moment from "moment";
 import DatePicker from "react-native-date-picker";
+import { updatUser } from "../API_STORE/userApi";
 
 const UpdateProfile = () => {
   const navigation = useNavigation();
@@ -54,6 +55,15 @@ console.log(authUser);
   const showSchoolColumn = group.groupName.includes("School");
   const showCollegeColumn = group.groupName.includes("College");
 
+  const classOptions = Array.from({ length: 9 }, (_, i) => ({
+    label: `Class ${i + 4}`,
+    value: `Class ${i + 4}`,
+  }));
+
+  const sectionOptions = Array.from({ length: 26 }, (_, i) => ({
+    label: String.fromCharCode(65 + i),
+    value: String.fromCharCode(65 + i),
+  }));
   const { isGradient, gradientColors, start, end, solidColor } = parseGradient(group.groupTheme);
 
   const handleUpdateProfile = async () => {
@@ -73,29 +83,21 @@ console.log(authUser);
       address,
       section,
       dateOfBirth: moment(dateOfBirth).format("YYYY-MM-DD"),
-      password: password || undefined, // Only send if changed
     };
 
     try {
-      const response = await fetch("http://localhost:2000/users/update", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${authUser.token}`,
-        },
-        body: JSON.stringify(updatedData),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        updateUser(data.user);
+      const response = await updatUser(authUser.userId, updatedData)
+      console.log(response);
+      
+      if (response.success) {
         Toast.show({ type: "success", text1: "Profile updated successfully" });
         navigation.goBack();
       } else {
         Alert.alert("Error", data.message);
       }
     } catch (error) {
+      console.log("Update failed", error);
+      
       Alert.alert("Error", "Something went wrong!");
     }
   };
@@ -220,7 +222,7 @@ console.log(authUser);
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       {isGradient ? (
-        <LinearGradient colors={gradientColors} start={start} end={end} style={[styles.parentDiv,{ width: "100%", paddingVertical: 20 }]}>
+        <LinearGradient colors={gradientColors} start={start} end={end} style={[styles.parentDiv,{ width: "100%", paddingVertical: 20, flex:1 }]}>
           {renderContent()}
         </LinearGradient>
       ) : (

@@ -16,6 +16,8 @@ export const UserRegisteration = async (data) => {  // <-- No {}
 
 export const UserLoggin = async (data) => {  // <-- No {}
     try {
+        console.log("usre", data);
+        
         const response = await apiConnect('post', '/users/signin', data);
         return response ;
     } catch (error) {
@@ -68,6 +70,8 @@ export const getUserTestHistoryById = async (data) => {
         console.log(data);
         
         const response = await apiConnect('get', `/submissions/user/${data}/tests`);
+        console.log(response);
+        
         return response?.data;
     } catch (error) {
         console.error("API Error:", error.response?.data || error.message);
@@ -89,8 +93,21 @@ export const getUsersByRank =async (data) => {
 
 export const setNewPassword = async (data) => {
     try {        
-        const response = await apiConnect('post', `/reset-password`);
+        const response = await apiConnect('post', `users/reset-password`);
         return response?.data;
+    } catch (error) {
+        console.error("API Error:", error.response?.data || error.message);
+        return  error.response?.data
+    }
+}
+export const updatUser = async (id, data) => {
+    try {
+        console.log(data);
+        
+        const response = await apiConnect('put', `/users/update/${id}`, data);
+        console.log(response);
+        
+        return response;
     } catch (error) {
         console.error("API Error:", error.response?.data || error.message);
         return  error.response?.data

@@ -14,7 +14,8 @@ export const AuthProvider = ({ children }) => {
   const [groupTheme, setGroupTheme] = useState(colors.main_gradient);
   const [group, setGroup] = useState(null);
   const [login, setLogin] = useState(false);
-
+  const [currentScore, setCurrentScore] = useState(0);
+  const [currentRank, setCurrentRank] = useState(0)
 // Empty dependency array ensures this runs only once
 
   useEffect(() => {
@@ -32,7 +33,7 @@ export const AuthProvider = ({ children }) => {
 
 
   return (
-    <AuthContext.Provider value={{ authUser, setAuthUser, userLoggedIn, setGroupTheme, groupTheme, logout, group, setGroup, setLogin, setUserLoggedIn }}>
+    <AuthContext.Provider value={{ authUser, setAuthUser, userLoggedIn, setGroupTheme, groupTheme, logout, group, setGroup, setLogin, setUserLoggedIn, setCurrentRank, currentRank, setCurrentScore, currentScore }}>
       {children}
     </AuthContext.Provider>
   );

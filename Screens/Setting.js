@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Share, Alert, TouchableWithoutFeedback, Keyboard } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Share, Alert, TouchableWithoutFeedback, Keyboard, Linking } from 'react-native';
 import style from '../assets/styles/main_style';
 import { app_config } from '../assets/app_config';
 import { colors } from '../assets/styles/colors';
@@ -17,11 +17,11 @@ const Settings = () => {
     const handleShareApp = async () => {
         try {
             await Share.share({
-                message: `📖 Assalamu Alaikum! I’m enhancing my Islamic knowledge with this amazing quiz app! 🌙✨  
+                message: `📖 Assalamu Alaikum! I’m enhancing my Islamic knowledge with this amazing quiz app EPL Quiz! 🌙✨  
 Test your understanding of the Quran, Hadith, Seerah, and Islamic history while enjoying fun and interactive challenges! 🏆📚  
 
 Join me on this journey of learning and self-improvement! 🚀📲  
-🔗 Download the app now: https://example.com/app`
+🔗 Go to: https://theafafway.com/`
 
             });
         } catch (error) {

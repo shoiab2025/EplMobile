@@ -445,6 +445,7 @@ const TestScreen = () => {
                     testId: tests._id,
                     answers: userResponses, // Send structured responses instead of raw selectedAnswers
                     score: finalScore, // Include calculated score
+                    submittedAt: new Date(),
                 });
 
                 console.log("The test submission response", response);
@@ -634,7 +635,7 @@ const TestScreen = () => {
                             </>
                         )}
 
-                        <Text style={[styles.text_default, { fontSize: 22, lineHeight: 30 }]}>
+                        <Text style={[styles.text_default, { fontSize: 20, lineHeight: 30 }]}>
                             {question}
                         </Text>
                     </View>

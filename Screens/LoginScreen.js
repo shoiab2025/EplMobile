@@ -8,8 +8,7 @@ import {
   Modal,
   SafeAreaView,
   Keyboard,
-  Clipboard,
-  ToastAndroid, // Import ToastAndroid for Android clipboard
+  ToastAndroid,
 } from 'react-native';
 import React, { useState } from 'react';
 import { app_config } from '../assets/app_config';
@@ -53,19 +52,22 @@ const LoginScreen = () => {
       return;
     }
 
-    const response = await UserLoggin({ userIdOrEmail: registrationId, password: password });
-    console.log(response);
+    try {
+      const response = await UserLoggin({ userIdOrEmail: registrationId, password: password, groupId: group?._id });
 
-    if (response.success) {
-      Toast.show({ type: 'success', text1: 'Logged In Successfully' });
-      setAuthUser(response.data);
-      setLogin(true);
-    } else {
-      Toast.show({
-        type: 'error',
-        text1: 'Login Failed',
-        text2: response.data.message,
-      });
+      if (response?.success) {
+        Toast.show({ type: 'success', text1: 'Logged In Successfully' });
+        setAuthUser(response.data);
+        setLogin(true);
+      } else {
+        Toast.show({
+          type: 'error',
+          text1: 'Login Failed',
+          text2: response?.data?.message || 'Invalid credentials',
+        });
+      }
+    } catch (error) {
+      Toast.show({ type: 'error', text1: 'Login Error', text2: error.message || 'Try again later' });
     }
   };
 
@@ -75,19 +77,18 @@ const LoginScreen = () => {
       return;
     }
 
-    const formattedDate = moment(date).format('YYYY-MM-DD'); // Ensure correct date format
+    try {
+      const formattedDate = moment(date).format('YYYY-MM-DD');
+      const response = await ForgotPassword({ userId: registrationId, dob: formattedDate });
 
-    const response = await ForgotPassword({ userId: registrationId, dob: formattedDate });
-
-    if (response.success) {
-      Toast.show({ type: 'success', text1: 'Password reset link sent!' });
-      setResetToken(response.data)
-    } else {
-      Toast.show({
-        type: 'error',
-        text1: 'Forgot Password Failed',
-        text2: response.message || 'Something went wrong!',
-      });
+      if (response?.success) {
+        Toast.show({ type: 'success', text1: 'Password reset link sent!' });
+        setResetToken(response.data);
+      } else {
+        Toast.show({ type: 'error', text1: 'Forgot Password Failed', text2: response?.message || 'Try again' });
+      }
+    } catch (error) {
+      Toast.show({ type: 'error', text1: 'Error', text2: error.message || 'Something went wrong' });
     }
   };
 
@@ -97,50 +98,47 @@ const LoginScreen = () => {
       return;
     }
 
+    try {
+      const response = await setNewPassword({ resetToken, newPassword: resetPassword });
 
-    const response = await setNewPassword({ resetToken: resetToken, newPassword: resetPassword });
-
-    if (response.success) {
-      Toast.show({ type: 'success', text1: message });
-    } else {
-      Toast.show({
-        type: 'error',
-        text1: 'Forgot Password Failed',
-        text2: response.message || 'Something went wrong!',
-      });
+      if (response?.success) {
+        Toast.show({ type: 'success', text1: 'Password Reset Successfully' });
+        setPasswordShowModel(false);
+      } else {
+        Toast.show({ type: 'error', text1: 'Reset Failed', text2: response?.message || 'Try again' });
+      }
+    } catch (error) {
+      Toast.show({ type: 'error', text1: 'Error', text2: error.message || 'Try again later' });
     }
   };
 
   const forgotRegId = async () => {
+    if (!date || !phoneNo) {
+      Toast.show({ type: 'error', text1: 'Please fill in all fields' });
+      return;
+    }
+
     try {
-      // Validate input
-      if (!date || !phoneNo) {
-        Toast.show({ type: 'error', text1: 'Please fill in all fields' });
-        return;
-      }
-
-      // Call API inside try block
       const response = await ForgotRegId({ dob: moment(date).format('YYYY-MM-DD'), phoneNo });
-      console.log(response);
 
-      // Check API response
-      Toast.show({
-        type: 'success',
-        text1: response.message
-      });
-      setRegId(response.userId);
+      if (response?.success) {
+        Toast.show({ type: 'success', text1: response?.message || 'Registration ID retrieved' });
+        setRegId(response?.userId);
+      } else {
+        Toast.show({ type: 'error', text1: 'Failed', text2: response?.message || 'Try again' });
+      }
     } catch (error) {
-      Toast.show({
-        type: 'error',
-        text1: 'Error',
-        text2: error.message || 'Something went wrong. Please try again.',
-      });
+      Toast.show({ type: 'error', text1: 'Error', text2: error.message || 'Try again later' });
     }
   };
 
   const copyToClipboard = () => {
-    Clipboard.setString(regId);
-    ToastAndroid.show('Copied to clipboard!', ToastAndroid.SHORT);
+    if (regId) {
+      Clipboard.setString(regId);
+      ToastAndroid.show('Copied to clipboard!', ToastAndroid.SHORT);
+    } else {
+      Toast.show({ type: 'error', text1: 'No Registration ID to copy' });
+    }
   };
 
   const renderContent = () => {
@@ -207,7 +205,7 @@ const LoginScreen = () => {
 
               {
                 resetToken === null ? (
-                  <View style={{width: '100%', justifyContent:'center', alignItems: 'center'}}>
+                  <View style={{ width: '100%', justifyContent: 'center', alignItems: 'center' }}>
                     <Text style={[styles.headingText, { marginVertical: 10 }]}>{text.LoginScreen.forgotPswd}</Text>
 
                     <Text style={styles.lableText}>{text.LoginScreen.registration_id}</Text>
@@ -229,17 +227,17 @@ const LoginScreen = () => {
                     </TouchableOpacity>
                   </View>
                 ) : (
-                  <View style={{width: '100%', justifyContent: 'center', alignItems:'center'}}>
-                      <Text style={[styles.headingText, { marginVertical: 15 }]}>Reset Password</Text>
-                      <Text style={styles.lableText}>Set New Password</Text>
+                  <View style={{ width: '100%', justifyContent: 'center', alignItems: 'center' }}>
+                    <Text style={[styles.headingText, { marginVertical: 15 }]}>Reset Password</Text>
+                    <Text style={styles.lableText}>Set New Password</Text>
 
                     <TextInput
-                        style={styles.inputField}
-                        placeholder={text.RegisterScreen.password}
-                        value={resetPassword}
-                        onChangeText={setResetPassword}
-                        placeholderTextColor={'gray'}
-                      />
+                      style={styles.inputField}
+                      placeholder={text.RegisterScreen.password}
+                      value={resetPassword}
+                      onChangeText={setResetPassword}
+                      placeholderTextColor={'gray'}
+                    />
                     <TouchableOpacity style={[styles.button, { width: '100%' }]} onPress={handleResetPassword}>
                       <Text style={styles.buttonText}>{text.LoginScreen.submit}</Text>
                     </TouchableOpacity>
@@ -354,10 +352,12 @@ const LoginScreen = () => {
     )
   }
 
+
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       {isGradient ? (
         <LinearGradient colors={gradientColors} start={start} end={end} style={styles.parentDiv}>
+          {/* Render Content */}
           {renderContent()}
         </LinearGradient>
       ) : (
@@ -366,7 +366,6 @@ const LoginScreen = () => {
         </View>
       )}
     </TouchableWithoutFeedback>
-
   );
 };
 

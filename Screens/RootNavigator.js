@@ -26,6 +26,7 @@ import { Button } from 'react-native';
 import updateProfile from './UpdateProfile';
 import Policy from './Policy';
 import Certificate from './Certificate';
+import PerformanceScreen from './PerfomanceScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -69,7 +70,7 @@ const PerfomanceStack = () => {
     const styles = style();
     return (
         <Stack.Navigator>
-            <Stack.Screen name="Perfomances" component={PerfomanceScreen} options={{ headerShown: false, headerTitleStyle: [styles.home_banner_txt, { color: colors.primary, }], headerTransparent: true, headerTitle: 'Progress' }} />
+            <Stack.Screen name="Perfomances" component={PerformanceScreen} options={{ headerShown: false, headerTitleStyle: [styles.home_banner_txt, { color: colors.primary, }], headerTransparent: true, headerTitle: 'Progress' }} />
             <Stack.Screen name="TestScreen" component={TestScreen} options={{ headerShown: false }} />
             <Stack.Screen name="Announcement" component={Announcement} options={{ headerShown: true }} />
             <Stack.Screen name="LeaderBoard" component={LeaderBoardScreen} options={{ headerShown: false, headerTitleStyle: [styles.home_banner_txt, { color: colors.primary, }], headerTransparent: true, }} />
@@ -89,6 +90,7 @@ const ProfileStack = () => {
             <Stack.Screen name="ProfileEdit" component={updateProfile} options={{  headerShown: true, headerTitleStyle: [styles.home_banner_txt, { color: colors.primary, }], headerTransparent: false, headerTitle: "Update Profile" } }/>
             <Stack.Screen name="Policy" component={Policy} options={{ headerShown: true, headerTitleStyle: [styles.home_banner_txt, { color: colors.primary, }], headerTransparent: false, headerTitle: 'Privacy Policy' }} />
             <Stack.Screen name="Certificate" component={Certificate} options={{ headerShown: true, headerTitleStyle: [styles.home_banner_txt, { color: colors.primary, }], headerTransparent: false, headerTitle: 'Certificate' }} />
+            <Stack.Screen name="Achievement" component={Certificate} options={{ headerShown: true, headerTitleStyle: [styles.home_banner_txt, { color: colors.primary, }], headerTransparent: false, headerTitle: 'Achievements' }} />
         </Stack.Navigator>
     );
 }

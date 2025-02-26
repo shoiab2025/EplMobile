@@ -1,4 +1,7 @@
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView, TouchableWithoutFeedback, Keyboard } from 'react-native';
+import { 
+    View, Text, TouchableOpacity, StyleSheet, ScrollView, 
+    TouchableWithoutFeedback, Keyboard 
+} from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { colors } from '../assets/styles/colors';
@@ -7,33 +10,52 @@ import style from '../assets/styles/main_style';
 import { parseGradient } from '../Components/gradient';
 import { useAuth } from './AuthContext';
 import LinearGradient from 'react-native-linear-gradient';
-import { getAllTest } from '../API_STORE/testApi';
+import { getAllTestById } from '../API_STORE/testApi';
 import Toast from 'react-native-toast-message';
+import { getAllSchedules } from '../API_STORE/scheduleApi';
+import { app_config } from '../assets/app_config';
 
 const QuizScreen = () => {
     const styles = style();
     const route = useRoute();
     const navigation = useNavigation();
     const group = route.params?.group || {};
-    const { groupTheme, authUser } = useAuth();
+    const { groupTheme } = useAuth();
     const [allTest, setAllTest] = useState([]);
+    const [allSchedules, setAllSchedules] = useState([]);
+    
+    // Dynamically calculate the season based on the year
+    const baseYear = 2022; // Adjust this based on when season 3 started
+    const currentYear = new Date().getFullYear();
+    const season = (currentYear - baseYear);
+    
     const pdfs = {
-        EPL_Season_3_Quizzes: Array.from({ length: 27 }, (_, i) => ({
+        [`EPL_Season_${season}_Quizzes`]: Array.from({ length: 27 }, (_, i) => ({
             content: `Day ${i + 1}`,
-            fileUrl: `https://example_pdf.com/day${i + 1}`,
-            contentType: 'pdf'
         }))
     };
+
     const { isGradient, gradientColors, start, end, solidColor } = parseGradient(groupTheme);
 
     useEffect(() => {
         const fetchTests = async () => {
             try {
-                const response = await getAllTest();
+                const response = await getAllSchedules();
+                console.log('Quizzes:', response);
+                
                 if (response.success) {
-                    setAllTest(response.data);
-                    console.log(response.data);
-                    
+                    setAllSchedules(response.data);
+
+                    const testPromises = response.data.map(async (option) => {
+                        if (option.tests?.[0]) {
+                            const getTestData = await getAllTestById(option.tests[0]);
+                            return getTestData.data;
+                        }
+                        return null;
+                    });
+
+                    const testResults = await Promise.all(testPromises);
+                    setAllTest(testResults.filter(Boolean));
                 } else {
                     console.error("Failed to fetch tests:", response.message);
                 }
@@ -45,64 +67,70 @@ const QuizScreen = () => {
         fetchTests();
     }, []);
 
-    setTimeout(() => {
-        if(allTest.length === 0) {
-            Toast.show({
-                type: 'info',
-                text1: 'Test yet Not released'
-            })
-        }
-    }, 3000)
+    useEffect(() => {
+        const timeout = setTimeout(() => {
+            if (allTest.length === 0) {
+                Toast.show({
+                    type: 'info',
+                    text1: 'Tests yet Not released'
+                });
+            }
+        }, 3000);
 
-    const renderItem = (item, index) => (
-        <TouchableOpacity
-            style={[
-                styles.listItem,
-                localStyles.listItem,
-                { backgroundColor:  !allTest[index]?.publish? 'gray' :colors.lightGray }
-            ]}
-            key={index}
-            onPress={() => {
-                navigation.navigate("TestScreen", { item, screen: 'Quizzes', test: allTest[index] }); // Ensure navigation is defined
-            }}
-            disabled={!allTest[index]?.publish}
-        >
-            <Text
+        return () => clearTimeout(timeout);
+    }, [allTest]);
+    
+    const renderItem = (item, index) => {
+        const isPublished = allTest[index]?.publish;
+        return (
+            <TouchableOpacity
+                key={index}
                 style={[
-                    styles.listItemText,
-                    localStyles.listItemText,
-                    { color: allTest[index]?.publish ? colors.primary : 'rgba(255,255,255, 0.34)', fontSize: 22 }
+                    styles.listItem,
+                    localStyles.listItem,
+                    { backgroundColor: isPublished ? colors.lightGray : 'gray' }
                 ]}
+                onPress={() => {
+                    if (allTest[index]) {
+                        navigation.navigate("TestScreen", { item, screen: 'Quizzes', test: allTest[index] });
+                    }
+                }}
+                disabled={!isPublished}
             >
-                {item.content}{console.log("Indexlist", allTest[index])
-                }
-            </Text>
-        </TouchableOpacity>
-            
-    );
+                <Text
+                    style={[
+                        styles.listItemText,
+                        localStyles.listItemText,
+                        { color: isPublished ? colors.primary : 'rgba(255,255,255, 0.34)', fontSize: 20 }
+                    ]}
+                >
+                    {item.content}
+                </Text>
+            </TouchableOpacity>
+        );
+    };
 
     const renderSection = (title, data) => (
         <View style={localStyles.sectionContainer} key={title}>
-            <Text style={[styles.headingText, localStyles.sectionTitle, { textTransform: 'capitalize', fontSize: 20 }]}>Epl Season 3 quizzes</Text>
+            <Text style={[styles.headingText, localStyles.sectionTitle, { textTransform: 'capitalize', fontSize: 25 }]}>
+                EPL Season {season} Quizzes
+            </Text>
             <View style={localStyles.gridContainer}>
                 {data.map((item, index) => renderItem(item, index))}
             </View>
         </View>
     );
 
-    const renderContent = () => {
-        return (
-            <>
-                <View style={styles.absoluteCode}>
-                    <Notification />
-                </View>
-
-                <ScrollView style={{ flex: 1, width: '100%' }}>
-                    {Object.keys(pdfs).map(sectionTitle => renderSection(sectionTitle, pdfs[sectionTitle]))}
-                </ScrollView>
-            </>
-        )
-    }
+    const renderContent = () => (
+        <>
+            <View style={styles.absoluteCode}>
+                <Notification />
+            </View>
+            <ScrollView style={{ flex: 1, width: '100%' }}>
+                {Object.keys(pdfs).map(sectionTitle => renderSection(sectionTitle, pdfs[sectionTitle]))}
+            </ScrollView>
+        </>
+    );
 
     return (
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -111,7 +139,7 @@ const QuizScreen = () => {
                     {renderContent()}
                 </LinearGradient>
             ) : (
-                <View style={[styles.parentDiv, { backgroundColor: solidColor }]}>
+                <View style={[styles.parentDiv, { backgroundColor: solidColor }]}> 
                     {renderContent()}
                 </View>
             )}
@@ -130,8 +158,7 @@ const localStyles = StyleSheet.create({
         fontSize: 18,
         fontWeight: '700',
         marginBottom: 20,
-        fontFamily: 'CrimsonText-Bold'
-
+        fontFamily: 'CrimsonText-Bold',
     },
     gridContainer: {
         flexDirection: 'row',
@@ -140,7 +167,7 @@ const localStyles = StyleSheet.create({
     },
     listItem: {
         width: '30%',
-        aspectRatio: 1, // Keeps square shape
+        aspectRatio: 1,
         borderRadius: 8,
         backgroundColor: colors.lightGray,
         justifyContent: 'center',
@@ -151,7 +178,7 @@ const localStyles = StyleSheet.create({
     },
     listItemText: {
         textAlign: 'center',
-        fontWeight: '700'
+        fontWeight: '700',
     },
 });
 
