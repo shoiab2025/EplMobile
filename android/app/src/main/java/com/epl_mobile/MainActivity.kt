@@ -18,7 +18,7 @@ class MainActivity : ReactActivity() {
         // Delay hiding the splash screen (e.g., 3 seconds)
         Handler(Looper.getMainLooper()).postDelayed({
             SplashScreen.hide(this)
-        }, 8000) // Change 3000 to desired milliseconds
+        }, 15000) // Change 3000 to desired milliseconds
     }
 
     override fun getMainComponentName(): String = "EPL_MOBILE"
