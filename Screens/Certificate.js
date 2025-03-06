@@ -73,8 +73,9 @@ const Certificate = ({ userName, testDate, seasonName }) => {
                                 textLength="200" // Ensures it stays within a fixed width
                                 numberOfLines={1} // Prevents wrapping
                                 ellipsizeMode="tail" // Truncate with "..."
+                                
                             >
-                                {params.user.length > 30 ? params.user.substring(0, 27) + "..." : params.user}
+                                {params.user.length > 30 ? params.user.substring(0, 27).toUpperCase() + "..." : params.user.toUpperCase() }
                             </SvgText>
 
 

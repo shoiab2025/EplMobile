@@ -122,7 +122,7 @@ const RegisterScreen = () => {
 
     const response = await UserRegisteration(registrationData || {});
     console.log(response);
-    if (response.successs) {
+    if (response.success) {
       setRegId(response.data.userId)
       setModalShown(!modalShown);
       Toast.show({
@@ -281,10 +281,11 @@ const RegisterScreen = () => {
                         placeholder="Select Class"
                         containerStyle={{ backgroundColor: colors.white }}
                         dropDownContainerStyle={{
-                          zIndex: 9999, backgroundColor: colors.white, paddingVertical: 10,
+                          zIndex: 999999, backgroundColor: colors.white, paddingVertical: 10,
                         }}
                         style={styles.inputField}
                         textStyle={{ fontFamily: "Inter_18pt-Bold" }}
+                        flatListProps={{ nestedScrollEnabled: true }}
                       />
 
                       <Text style={styles.lableText}>{text.RegisterScreen.section} *</Text>
@@ -297,10 +298,11 @@ const RegisterScreen = () => {
                         placeholder="Select Section"
                         containerStyle={{ backgroundColor: colors.white }}
                         dropDownContainerStyle={{
-                          zIndex: 999, backgroundColor: colors.white, paddingVertical: 10,
+                          zIndex: 999999, backgroundColor: colors.white, paddingVertical: 10,
                         }}
                         style={styles.inputField}
                         textStyle={{ fontFamily: "Inter_18pt-Bold" }}
+                        flatListProps={{ nestedScrollEnabled: true }}
                       />
                     </>
                   )}

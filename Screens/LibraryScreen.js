@@ -46,7 +46,7 @@ const LibraryScreen = () => {
                 navigation.navigate('Material', {
                     item: {
                         content: item.content,
-                        fileUrl: item.fileUrl
+                        file_url: item.file_url
                     }
                 })
             }
@@ -81,7 +81,7 @@ const LibraryScreen = () => {
                 <View style={styles.absoluteCode}>
                     <Notification />
                 </View>
-                <ScrollView>
+                <ScrollView contentContainerStyle={{ flexGrow: 1, alignItems: 'center', justifyContent: 'center' }}>
                 <View style={{ flex: 1, width: '100%' }}>
                     {
                         !loading ? (

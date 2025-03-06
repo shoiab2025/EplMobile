@@ -129,7 +129,7 @@ const HomeScreen = () => {
           <Notification />
         </View>
 
-       <ScrollView style={{flex: 1}}>
+       <ScrollView contentContainerStyle={{ flexGrow: 1, alignItems: 'center', justifyContent: 'center' }}>
          {/* Background Image */}
          <ImageBackground
           source={require('../assets/Images/quiz_title.png')}
@@ -213,7 +213,7 @@ const HomeScreen = () => {
                 <TouchableOpacity
                   onPress={() =>
                     navigation.navigate('Material', {
-                      item: { content: item.content, fileUrl: item.file_url },
+                      item: { content: item.content, file_url: item.file_url },
                     })
                   }
                 >
@@ -242,7 +242,7 @@ const HomeScreen = () => {
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       {isGradient ? (
-        <LinearGradient colors={gradientColors} start={start} end={end} style={styles.parentDiv}>
+        <LinearGradient colors={gradientColors} start={start} end={end} style={[styles.parentDiv, { justifyContent: 'center', alignItems: 'center'}]}>
           {renderContent()}
         </LinearGradient>
       ) : (

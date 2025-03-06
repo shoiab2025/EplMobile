@@ -359,6 +359,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginHorizontal: 4,
+    padding: 10
   },
   certificateText: {
     fontWeight: 'bold',

@@ -97,24 +97,25 @@ const LeaderBoardScreen = () => {
     useEffect(() => {
         if (leaderboardData?.rankings) {
             console.log(leaderboardData.rankings);
-
+    
             const uniqueUsers = new Map(); // Using Map to ensure uniqueness
-
-            leaderboardData.rankings[0].users.forEach((userData) => {
-                uniqueUsers.set(userData.user.userId, {
-                    averageScore: userData.averageScore,
-                    rank: userData.rank,
-                    testCount: userData.testCount,
-                    username: userData.user.name,
-                    userId: userData.user.userId,
-                    userGroup: userData.user.groupId,
+    
+            leaderboardData.rankings.forEach((group) => { // 🔄 Looping through all groups
+                group.users.forEach((userData) => {
+                    uniqueUsers.set(userData.user.userId, {
+                        averageScore: userData.averageScore,
+                        rank: userData.rank,
+                        testCount: userData.testCount,
+                        username: userData.user.name,
+                        userId: userData.user.userId,
+                        userGroup: userData.user.groupId,
+                    });
                 });
             });
-
+    
             setUsersRecord(Array.from(uniqueUsers.values())); // Convert Map to array and set state
         }
     }, [leaderboardData]);
-
 
     useEffect(() => {
         setCurrentGroupUser(getUsersRecord.filter(user => user.userGroup === group?._id?.toString()));

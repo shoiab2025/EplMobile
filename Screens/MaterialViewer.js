@@ -10,7 +10,6 @@ const MaterialViewer = () => {
   const item = route.params?.item;
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
-console.log(item);
 
   useEffect(() => {
     if (item?.content) {
@@ -18,7 +17,7 @@ console.log(item);
     }
   }, [navigation, item?.content]);
 
-  if (!item || !item.fileUrl) {
+  if (!item || !item.file_url) {
     return (
       <View style={styles.centeredContainer}>
         <Text style={styles.errorText}>No content available</Text>
@@ -26,7 +25,7 @@ console.log(item);
     );
   }
 
-  const fileUrl = item.fileUrl;
+  const fileUrl = item.file_url;
   const contentType = item.content_type?.toLowerCase() || "";
 
   return (
